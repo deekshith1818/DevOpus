@@ -1,0 +1,387 @@
+@import "tailwindcss";
+
+/* ========================================
+   LUCID THEME - Hacker Green/Black Aesthetic
+   ======================================== */
+
+:root {
+  /* Core Palette */
+  --lucid-bg: #050505;
+  --lucid-bg-secondary: #0a0a0a;
+  --lucid-bg-tertiary: #111111;
+  --lucid-green: #22c55e;
+  --lucid-green-dim: #16a34a;
+  --lucid-green-glow: rgba(34, 197, 94, 0.15);
+
+  /* Text */
+  --lucid-text-primary: #ffffff;
+  --lucid-text-secondary: #a1a1aa;
+  --lucid-text-muted: #71717a;
+
+  /* Borders */
+  --lucid-border: #1f1f1f;
+  --lucid-border-highlight: #2a2a2a;
+
+  /* Legacy support */
+  --background: var(--lucid-bg);
+  --foreground: var(--lucid-text-primary);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-jetbrains), 'Fira Code', 'Consolas', monospace;
+}
+
+html,
+body {
+  background: var(--lucid-bg);
+  color: var(--lucid-text-primary);
+  font-family: var(--font-inter), system-ui, -apple-system, sans-serif;
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* ========================================
+   SANDPACK OVERRIDES
+   ======================================== */
+.sp-wrapper {
+  height: 100% !important;
+  background: #050505 !important;
+}
+
+.sp-layout {
+  height: 100% !important;
+  border: none !important;
+  border-radius: 0 !important;
+  background: #050505 !important;
+}
+
+.sp-stack {
+  background: #050505 !important;
+}
+
+.sp-editor {
+  height: 100% !important;
+  background: #050505 !important;
+}
+
+.sp-preview-container {
+  height: 100% !important;
+  background: #050505 !important;
+}
+
+.sp-preview {
+  background: #050505 !important;
+}
+
+/* Prevent white flash during resize - comprehensive iframe and loading state coverage */
+.sp-preview-iframe {
+  background: #09090b !important;
+}
+
+/* Cover all Sandpack loading states and containers */
+.sp-preview-actions-bar,
+.sp-preview-actions,
+.sp-tabs,
+.sp-tab-button,
+.sp-loading,
+.sp-cube-wrapper,
+.sp-preview iframe,
+[class*="sp-"] {
+  background: #050505 !important;
+  background-color: #050505 !important;
+}
+
+/* Force iframe background via attribute selector */
+iframe[title*="Sandpack"],
+iframe[title*="Preview"] {
+  background: #09090b !important;
+}
+
+/* Smooth transitions for preview during resize */
+.sp-preview-container,
+.sp-preview,
+.sp-stack {
+  will-change: width;
+  transition: none;
+}
+
+/* ========================================
+   CUSTOM SCROLLBAR - Green Accent
+   ======================================== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--lucid-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lucid-border-highlight);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--lucid-green-dim);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+.font-mono {
+  font-family: var(--font-jetbrains), 'Fira Code', monospace;
+}
+
+.text-lucid-green {
+  color: var(--lucid-green);
+}
+
+.bg-lucid-glow {
+  background: var(--lucid-green-glow);
+}
+
+.border-lucid {
+  border-color: var(--lucid-border);
+}
+
+/* Terminal-style log area */
+.log-area {
+  font-family: var(--font-jetbrains), monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  background: var(--lucid-bg);
+  color: var(--lucid-text-secondary);
+}
+
+.log-area .log-line {
+  padding: 2px 0;
+}
+
+.log-area .log-success {
+  color: var(--lucid-green);
+}
+
+.log-area .log-label {
+  color: var(--lucid-green);
+  font-weight: 500;
+}
+
+/* Pill toggle */
+.pill-toggle {
+  display: inline-flex;
+  background: var(--lucid-bg-tertiary);
+  border-radius: 9999px;
+  padding: 4px;
+  gap: 4px;
+}
+
+.pill-toggle button {
+  padding: 6px 16px;
+  border-radius: 9999px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  color: var(--lucid-text-secondary);
+}
+
+.pill-toggle button.active {
+  background: var(--lucid-green);
+  color: #000000;
+}
+
+.pill-toggle button:not(.active):hover {
+  color: var(--lucid-text-primary);
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes animate-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes blink {
+
+  0%,
+  50% {
+    opacity: 1;
+  }
+
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+.animate-in {
+  animation: animate-in 0.2s ease-out;
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s infinite;
+}
+
+.cursor-blink::after {
+  content: '▋';
+  animation: blink 1s step-end infinite;
+  color: var(--lucid-green);
+}
+
+/* ========================================
+   RESIZABLE SIDEBAR
+   ======================================== */
+.resize-handle {
+  width: 6px;
+  cursor: col-resize;
+  background: var(--lucid-border);
+  transition: background 0.2s;
+  will-change: background;
+  flex-shrink: 0;
+}
+
+.resize-handle:hover {
+  background: var(--lucid-green);
+}
+
+.resize-handle:active {
+  background: var(--lucid-green);
+}
+
+/* Prevent text selection during resize */
+body.resizing {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+
+body.resizing * {
+  cursor: col-resize !important;
+}
+
+/* Improve iframe performance during resize */
+.sp-preview-iframe {
+  will-change: auto;
+}
+
+/* ========================================
+   Pipeline Flow Animations
+   ======================================== */
+
+@keyframes flow-travel {
+  0% {
+    left: -120px;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    left: calc(100% + 20px);
+    opacity: 0;
+  }
+}
+
+@keyframes flow-travel-delayed {
+  0% {
+    left: -80px;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    left: calc(100% + 20px);
+    opacity: 0;
+  }
+}
+
+@keyframes flow-travel-vertical {
+  0% {
+    top: -80px;
+    opacity: 0;
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  90% {
+    opacity: 1;
+  }
+
+  100% {
+    top: calc(100% + 20px);
+    opacity: 0;
+  }
+}
+
+@keyframes node-glow {
+
+  0%,
+  100% {
+    box-shadow: 0 0 4px rgba(16, 185, 129, 0.3), 0 0 10px rgba(16, 185, 129, 0.1);
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+
+  50% {
+    box-shadow: 0 0 10px rgba(16, 185, 129, 0.8), 0 0 25px rgba(16, 185, 129, 0.4), 0 0 40px rgba(16, 185, 129, 0.2);
+    transform: scale(1.2);
+    opacity: 1;
+  }
+}
+
+.animate-flow-pulse {
+  animation: flow-travel 3s ease-in-out infinite;
+}
+
+.animate-flow-pulse-delayed {
+  animation: flow-travel-delayed 3s ease-in-out infinite;
+  animation-delay: 1.5s;
+}
+
+.animate-flow-pulse-vertical {
+  animation: flow-travel-vertical 3s ease-in-out infinite;
+}
+
+/* Footer text stroke draw animation */
+@keyframes dash-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

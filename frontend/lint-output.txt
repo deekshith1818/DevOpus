@@ -1,0 +1,7 @@
+﻿
+C:\Users\Shashank Sakilam\Desktop\AGENTIC SOFWTARE DEVELOPMENT\lucidz-main\frontend\src\app\project\[id]\page.tsx
+  21:1  warning  Unused eslint-disable directive (no problems were reported from '@typescript-eslint/no-unused-vars')
+
+Γ£û 1 problem (0 errors, 1 warning)
+  0 errors and 1 warning potentially fixable with the `--fix` option.
+

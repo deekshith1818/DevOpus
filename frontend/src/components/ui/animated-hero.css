@@ -1,0 +1,162 @@
+@keyframes float-hero {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+
+    50% {
+        opacity: 0.8;
+        transform: scale(1.05);
+    }
+}
+
+@keyframes spin-slow {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes draw-line {
+    from {
+        stroke-dashoffset: 100;
+    }
+
+    to {
+        stroke-dashoffset: 0;
+    }
+}
+
+@keyframes type-cursor {
+
+    0%,
+    100% {
+        border-right-color: transparent;
+    }
+
+    50% {
+        border-right-color: #22c55e;
+    }
+}
+
+@keyframes hero-shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes fade-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fade-in-up 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-shimmer {
+    animation: hero-shimmer 2s infinite linear;
+}
+
+.glass-panel {
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-card {
+    background: rgba(20, 20, 20, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.neon-text-green {
+    text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+}
+
+.neon-border-green {
+    box-shadow: 0 0 15px rgba(34, 197, 94, 0.2);
+    border-color: rgba(34, 197, 94, 0.5);
+}
+
+.code-glow {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15);
+}
+
+.transition-all-slow {
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.typing-cursor::after {
+    content: '|';
+    animation: type-cursor 1s step-end infinite;
+    color: #22c55e;
+}
+
+.node-line {
+    stroke-dasharray: 100;
+    stroke-dashoffset: 100;
+    animation: draw-line 1s ease-out forwards;
+}
+
+.token-keyword {
+    color: #c084fc;
+}
+
+.token-function {
+    color: #60a5fa;
+}
+
+.token-string {
+    color: #4ade80;
+}
+
+.token-comment {
+    color: #71717a;
+}
+
+.token-type {
+    color: #fbbf24;
+}
+
+.token-operator {
+    color: #f472b6;
+}
+
+.molt-sidebar-item.active {
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 2px solid #22c55e;
+}
+
+.upvote-active {
+    color: #22c55e;
+}
