@@ -2,7 +2,7 @@ import json
 import re
 from typing import Optional
 from dotenv import load_dotenv
-from langchain.globals import set_verbose, set_debug
+from langchain_core.globals import set_verbose, set_debug
 from langchain_anthropic import ChatAnthropic
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.constants import END
