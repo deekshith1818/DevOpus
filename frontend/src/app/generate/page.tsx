@@ -142,7 +142,7 @@ export default function Home() {
                 if (imageAssetUrl) console.log('Asset uploaded:', imageAssetUrl);
             }
 
-            const response = await fetch('http://localhost:8000/generate-stream', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-stream`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -188,117 +188,125 @@ export default function Home() {
 
                 buffer += decoder.decode(value, { stream: true });
 
-                // Process complete SSE events (lines starting with "data: ")
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || ''; // Keep incomplete line in buffer
+                // SSE events are separated by double newlines (\n\n)
+                // Split on event boundaries — keep trailing incomplete chunk in buffer
+                const events = buffer.split('\n\n');
+                buffer = events.pop() ?? ''; // Last element may be incomplete
 
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        try {
-                            const data = JSON.parse(line.slice(6));
+                for (const event of events) {
+                    // Each SSE event may have multiple "data:" lines — join them
+                    const dataLines = event
+                        .split('\n')
+                        .filter(l => l.startsWith('data: '))
+                        .map(l => l.slice(6));
 
-                            // Handle different stages
-                            switch (data.stage) {
-                                case 'planning':
-                                    setStage('planning');
-                                    break;
+                    if (dataLines.length === 0) continue; // skip blank / comment lines
 
-                                case 'plan_complete':
-                                    if (data.plan) {
-                                        setPlan(data.plan);
-                                    }
-                                    break;
+                    const rawJson = dataLines.join('\n'); // re-join multi-line JSON
 
-                                case 'architecting':
-                                    setStage('architecting');
-                                    break;
+                    try {
+                        const data = JSON.parse(rawJson);
 
-                                case 'architect_complete':
-                                    if (data.architect) {
-                                        setArchitect(data.architect);
-                                    }
-                                    if (data.diagram) {
-                                        setDiagram(data.diagram);
-                                    }
-                                    break;
+                        // Handle different stages
+                        switch (data.stage) {
+                            case 'planning':
+                                setStage('planning');
+                                break;
 
-                                case 'coding':
-                                    setStage('coding');
-                                    break;
+                            case 'plan_complete':
+                                if (data.plan) {
+                                    setPlan(data.plan);
+                                }
+                                break;
 
-                                case 'coding_complete':
-                                    if (data.files) {
-                                        latestFiles = data.files;
-                                        setFiles(data.files);
-                                    }
-                                    break;
+                            case 'architecting':
+                                setStage('architecting');
+                                break;
 
-                                case 'reviewing':
-                                    setStage('reviewing');
-                                    break;
+                            case 'architect_complete':
+                                if (data.architect) {
+                                    setArchitect(data.architect);
+                                }
+                                if (data.diagram) {
+                                    setDiagram(data.diagram);
+                                }
+                                break;
 
-                                case 'complete':
-                                    if (data.files) {
-                                        latestFiles = data.files;
-                                        setFiles(data.files);
-                                    }
-                                    if (data.review) {
-                                        setReview(data.review);
-                                    }
-                                    setStage('complete');
-                                    break;
+                            case 'coding':
+                                setStage('coding');
+                                break;
 
-                                case 'error':
-                                    console.error('Stream error:', data.message);
-                                    setPlan(`Error: ${data.message}`);
-                                    setStage('idle');
-                                    break;
+                            case 'coding_complete':
+                                if (data.files) {
+                                    latestFiles = data.files;
+                                    setFiles(data.files);
+                                }
+                                break;
 
-                                case 'saved':
-                                    if (data.project_id) {
-                                        setProjectId(data.project_id);
-                                        // Update URL to include project ID without full navigation
-                                        window.history.replaceState({}, '', `/project/${data.project_id}`);
+                            case 'reviewing':
+                                setStage('reviewing');
+                                break;
 
-                                        // Backup: also save code_snapshot in the mandatory format via POST /projects/save
-                                        if (user?.id) {
-                                            try {
-                                                // Use local variable `latestFiles` — avoids React stale closure
-                                                const currentFiles = latestFiles;
-                                                console.log('Backup save: files count =', Object.keys(currentFiles).length);
-                                                const codeSnapshot = {
-                                                    files: Object.fromEntries(
-                                                        Object.entries(currentFiles).map(([path, content]) => [
-                                                            path,
-                                                            typeof content === 'string' ? { code: content } : content
-                                                        ])
-                                                    )
-                                                };
-                                                fetch('http://localhost:8000/projects/save', {
-                                                    method: 'POST',
-                                                    headers: { 'Content-Type': 'application/json' },
-                                                    body: JSON.stringify({
-                                                        user_id: user.id,
-                                                        name: prompt.slice(0, 50),
-                                                        description: prompt,
-                                                        code_snapshot: codeSnapshot,
-                                                        project_id: data.project_id
-                                                    })
-                                                }).catch(console.error);
-                                            } catch {
-                                                // Non-fatal backup save
-                                            }
+                            case 'complete':
+                                if (data.files) {
+                                    latestFiles = data.files;
+                                    setFiles(data.files);
+                                }
+                                if (data.review) {
+                                    setReview(data.review);
+                                }
+                                setStage('complete');
+                                break;
+
+                            case 'error':
+                                console.error('Stream error:', data.message);
+                                setPlan(`Error: ${data.message}`);
+                                setStage('idle');
+                                break;
+
+                            case 'saved':
+                                if (data.project_id) {
+                                    setProjectId(data.project_id);
+                                    // Update URL to include project ID without full navigation
+                                    window.history.replaceState({}, '', `/project/${data.project_id}`);
+
+                                    // Backup: also save code_snapshot in the mandatory format via POST /projects/save
+                                    if (user?.id) {
+                                        try {
+                                            // Use local variable `latestFiles` — avoids React stale closure
+                                            const currentFiles = latestFiles;
+                                            console.log('Backup save: files count =', Object.keys(currentFiles).length);
+                                            const codeSnapshot = {
+                                                files: Object.fromEntries(
+                                                    Object.entries(currentFiles).map(([path, content]) => [
+                                                        path,
+                                                        typeof content === 'string' ? { code: content } : content
+                                                    ])
+                                                )
+                                            };
+                                            fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/save`, {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({
+                                                    user_id: user.id,
+                                                    name: prompt.slice(0, 50),
+                                                    description: prompt,
+                                                    code_snapshot: codeSnapshot,
+                                                    project_id: data.project_id
+                                                })
+                                            }).catch(console.error);
+                                        } catch {
+                                            // Non-fatal backup save
                                         }
                                     }
-                                    break;
-                            }
-                        } catch {
-                            console.warn('Failed to parse SSE data:', line);
+                                }
+                                break;
                         }
+                    } catch {
+                        console.warn('Failed to parse SSE data:', rawJson.slice(0, 100));
                     }
                 }
-            }
-
+            } // end while(true)
         } catch (error) {
             console.error('Error:', error);
             setPlan('Error: Failed to generate code. Check the backend console.');
@@ -313,7 +321,7 @@ export default function Home() {
     // Revert handler
     const handleRevert = async (versionId: string) => {
         try {
-            const response = await fetch(`http://localhost:8000/versions/${versionId}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/versions/${versionId}`);
             if (!response.ok) throw new Error('Failed to fetch version');
             const version = await response.json();
 
@@ -357,7 +365,7 @@ export default function Home() {
                 return;
             }
 
-            const response = await fetch('http://localhost:8000/api/export-to-github', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/export-to-github`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -398,7 +406,7 @@ export default function Home() {
             const primaryImage = attachments.images[0] || null;
             const attachment = primaryImage || attachments.pdf;
 
-            const response = await fetch('http://localhost:8000/followup-stream', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/followup-stream`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -436,43 +444,51 @@ export default function Home() {
 
                 buffer += decoder.decode(value, { stream: true });
 
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || '';
+                // Split on SSE event boundaries (\n\n), not single newlines
+                const events = buffer.split('\n\n');
+                buffer = events.pop() ?? '';
 
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        try {
-                            const data = JSON.parse(line.slice(6));
+                for (const event of events) {
+                    const dataLines = event
+                        .split('\n')
+                        .filter(l => l.startsWith('data: '))
+                        .map(l => l.slice(6));
 
-                            switch (data.stage) {
-                                case 'modifying':
-                                    setStage('modifying');
-                                    break;
+                    if (dataLines.length === 0) continue;
 
-                                case 'complete':
-                                    if (data.files) {
-                                        setFiles(data.files);
+                    const rawJson = dataLines.join('\n');
+
+                    try {
+                        const data = JSON.parse(rawJson);
+
+                        switch (data.stage) {
+                            case 'modifying':
+                                setStage('modifying');
+                                break;
+
+                            case 'complete':
+                                if (data.files) {
+                                    setFiles(data.files);
+                                }
+                                setStage('complete');
+                                // Add response to the last follow-up message
+                                setFollowUpMessages(prev => {
+                                    const updated = [...prev];
+                                    if (updated.length > 0) {
+                                        updated[updated.length - 1].response = data.summary || 'Modifications applied successfully.';
                                     }
-                                    setStage('complete');
-                                    // Add response to the last follow-up message
-                                    setFollowUpMessages(prev => {
-                                        const updated = [...prev];
-                                        if (updated.length > 0) {
-                                            updated[updated.length - 1].response = data.summary || 'Modifications applied successfully.';
-                                        }
-                                        return updated;
-                                    });
+                                    return updated;
+                                });
 
-                                    break;
+                                break;
 
-                                case 'error':
-                                    console.error('Follow-up error:', data.message);
-                                    setStage('complete');
-                                    break;
-                            }
-                        } catch {
-                            console.warn('Failed to parse SSE data:', line);
+                            case 'error':
+                                console.error('Follow-up error:', data.message);
+                                setStage('complete');
+                                break;
                         }
+                    } catch {
+                        console.warn('Failed to parse follow-up SSE data:', rawJson.slice(0, 100));
                     }
                 }
             }
@@ -752,3 +768,4 @@ export default function Home() {
         </div>
     );
 }
+

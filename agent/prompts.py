@@ -56,7 +56,9 @@ CRITICAL TECH STACK RULES
 2. **Styling:** Tailwind CSS (utility-first) - ALL STYLES MUST BE INLINE IN JSX.
 3. **Icons:** Lucide React.
 4. **State:** React Hooks (useState, useEffect) or Context API if complex.
-5. **SINGLE FILE:** Plan for ALL components to be in a SINGLE /App.tsx file.
+5. **MODULAR COMPONENTS:** Plan for SEPARATE component files under `/components/`.
+   - Each major UI section should be its own file (e.g., `/components/Header.tsx`, `/components/Hero.tsx`)
+   - `/App.tsx` is the root entry point that imports and composes all components.
 
 #############################################
 OUTPUT FORMAT (JSON)
@@ -68,8 +70,9 @@ Return a JSON object with these exact keys:
 - "core_features": ["List of 3-5 MVP features"],
 - "user_flow": "Step-by-step walkthrough of the main user action",
 - "design_theme": "Describe the visual theme, color palette, and aesthetics appropriate for this app",
-- "file_structure_plan": "SINGLE FILE: /App.tsx with all components",
-- "technical_constraints": ["All components in single file", "Tailwind inline styles only"],
+- "file_structure_plan": "Modular: /App.tsx as root, /components/ for each section",
+- "component_breakdown": ["Header", "Hero", "Features", "Footer", "etc - list each planned component"],
+- "technical_constraints": ["Modular component files", "Tailwind inline styles only", "TypeScript .tsx"],
 - "extracted_content": "CRITICAL: If document was uploaded, include ALL extracted data here - projects, skills, education, certifications, experience - with EXACT details from the document. This will be passed to the coder."
 
 Keep the plan focused on the MVP. Do not add unnecessary complexity.
@@ -86,28 +89,38 @@ Project Plan:
 {plan}
 
 CRITICAL RULES:
-- ALL COMPONENTS must be defined in a SINGLE /App.tsx file.
-- Do NOT plan for separate component files.
+- Design a MODULAR component architecture with SEPARATE files.
+- `/App.tsx` is the root entry point that imports and renders all sub-components.
+- Each major UI section should be its own file under `/components/`.
 - ALWAYS use .tsx extension (NEVER .jsx or .js).
-- Each component should be a simple function defined BEFORE the main App component.
-- The main App() function should use the internal components.
 
 TYPESCRIPT REQUIREMENT:
 - All files must use .tsx or .ts extension.
 - Use TypeScript interfaces for props: {{ prop: string }}
 - NO .jsx or .js files allowed.
 
+FILE STRUCTURE:
+Plan the following file structure:
+```
+/App.tsx                     ← Root entry, imports all components
+/components/Header.tsx       ← Navigation/header
+/components/Hero.tsx         ← Hero section (if applicable)
+/components/[Section].tsx    ← One file per major UI section
+/components/Footer.tsx       ← Footer
+/package.json                ← Dependencies
+/README.md                   ← Project documentation
+```
+
 IMPLEMENTATION ORDER:
-1. First, define TypeScript interfaces/types
-2. Then, define helper functions for your app's logic
-3. Then, define UI sub-components as functions
-4. Finally, define the main App component that uses them all
+1. First, plan shared TypeScript interfaces/types (can be defined at top of each file or in a shared types section in App.tsx)
+2. Then, plan each component file with its props interface and implementation
+3. Finally, plan the root App.tsx that imports and composes all components
 
 CRITICAL VISUALIZATION RULE:
 - You MUST generate a valid Mermaid.js flowchart (`graph TD`) in the `architecture_diagram` field.
-- Show the relationship between the internal components.
-- Example: `graph TD; App[App.tsx] --> Header[Header]; App --> Content[MainContent]; App --> Footer[Footer]`
-- Do NOT use markdown code blocks. Just the raw Mermaid code string.r
+- Show the file-level relationships between components.
+- Example: `graph TD; App[App.tsx] --> Header[components/Header.tsx]; App --> Hero[components/Hero.tsx]; App --> Features[components/Features.tsx]; App --> Footer[components/Footer.tsx]`
+- Do NOT use markdown code blocks. Just the raw Mermaid code string.
     """
     return ARCHITECT_PROMPT
 
@@ -122,12 +135,13 @@ CRITICAL ARCHITECTURE RULES
 
 1. **NO NEXT.JS:** STRICTLY PROHIBITED. Do NOT generate `app/` folders, `layout.tsx`, `page.tsx`, or `next.config.js`.
 2. **PURE REACT:** Generate a standard React application (Create React App style).
-3. **ENTRY POINT:** You MUST generate EXACTLY ONE file named `/App.tsx`.
-   - This file exports a default function `App()` that renders the entire application UI.
+3. **ENTRY POINT:** You MUST generate a file named `/App.tsx`.
+   - This file exports a default function `App()` that imports and renders all sub-components.
    - NEVER generate /App.js or /App.jsx - ONLY /App.tsx is allowed.
-4. **SINGLE FILE:** ALL components, hooks, utilities must be defined INSIDE /App.tsx.
-   - Do NOT generate separate /components/ or /hooks/ folders.
-   - Do NOT import from ./components/ or ./hooks/.
+4. **MODULAR COMPONENTS:** Break the UI into separate component files:
+   - Create `/components/Header.tsx`, `/components/Hero.tsx`, `/components/Footer.tsx`, etc.
+   - Each component file exports a default function component.
+   - `/App.tsx` imports all components and composes them together.
 5. **ROUTING:** Use **conditional rendering** (state-based) inside `App.tsx`. No react-router-dom.
 
 #############################################
@@ -135,48 +149,66 @@ FILE RULES - CRITICAL
 #############################################
 
 6. **TYPESCRIPT ONLY:** ALL files must use .tsx extension. NEVER use .js or .jsx.
-7. **NO DUPLICATE ENTRY POINTS:** Generate ONLY /App.tsx. Do NOT create both App.tsx AND App.js.
-8. **NO ALIAS IMPORTS:** NEVER use `@/`. ALWAYS use relative paths.
-9. **GENERATE ONLY:**
-   - `/App.tsx` - Main entry point with ALL code (REQUIRED)
+7. **NO DUPLICATE ENTRY POINTS:** Generate ONLY /App.tsx as the root. Do NOT create both App.tsx AND App.js.
+8. **NO ALIAS IMPORTS:** NEVER use `@/`. ALWAYS use relative paths like `./components/Header`.
+9. **GENERATE:**
+   - `/App.tsx` - Root entry point that imports all components (REQUIRED)
+   - `/components/*.tsx` - One file per major UI section (REQUIRED for large apps)
    - `/package.json` - Dependencies (REQUIRED)
-10. **DO NOT GENERATE:**
-    - NO /components/*.tsx files
-    - NO /hooks/*.ts files
-    - NO /index.css or /styles.css (Tailwind is pre-configured)
-    - NO /types/*.ts files
+   - `/README.md` - Project documentation (REQUIRED)
+   - `/styles.css` - (OPTIONAL) Only if custom CSS beyond Tailwind is needed
+10. **COMPONENT FILE PATTERN:**
+    Each component file should follow this pattern:
+    ```tsx
+    import React from 'react';
+    import { IconName } from 'lucide-react';
+
+    interface SectionProps {
+      // props if needed
+    }
+
+    export default function SectionName({ ...props }: SectionProps) {
+      return (
+        <section className="...">
+          {/* Component content */}
+        </section>
+      );
+    }
+    ```
 11. **IMAGES:** Use placeholder URLs only (e.g., `https://placehold.co/600x400`).
 
 #############################################
-CORRECT STRUCTURE for /App.tsx
+CORRECT STRUCTURE EXAMPLE
 #############################################
 
+```
+/App.tsx                    → Root: imports Header, Hero, Features, Footer
+/components/Header.tsx      → Navbar with navigation links
+/components/Hero.tsx        → Hero section with CTA
+/components/Features.tsx    → Feature cards grid
+/components/Pricing.tsx     → Pricing tiers
+/components/Footer.tsx      → Footer with links
+/package.json               → Dependencies
+/README.md                  → Documentation
+```
+
+Example `/App.tsx`:
 ```tsx
-import React, { useState, useEffect } from 'react';
-import { IconName } from 'lucide-react';
+import React, { useState } from 'react';
+import Header from './components/Header';
+import Hero from './components/Hero';
+import Features from './components/Features';
+import Footer from './components/Footer';
 
-// 1. TYPES (if needed)
-interface ItemType { id: string; name: string; }
-
-// 2. UTILITY FUNCTIONS
-function helperFunction() { /* logic */ }
-
-// 3. SUB-COMPONENTS (defined as functions in same file)
-function Header({ title }: { title: string }) {
-  return <h1>{title}</h1>;
-}
-
-function ContentSection({ data }: { data: ItemType[] }) {
-  return <div>...</div>;
-}
-
-// 4. MAIN APP COMPONENT
 export default function App() {
-  const [state, setState] = useState<ItemType[]>([]);
+  const [currentPage, setCurrentPage] = useState('home');
+
   return (
-    <div>
-      <Header title="..." />
-      <ContentSection data={state} />
+    <div className="min-h-screen bg-gray-50">
+      <Header onNavigate={setCurrentPage} />
+      <Hero />
+      <Features />
+      <Footer />
     </div>
   );
 }
@@ -187,11 +219,12 @@ STYLING RULES (CRITICAL)
 #############################################
 
 12. **TAILWIND CSS:** Use Tailwind classes directly in JSX (`className="..."`).
-13. **NO CSS FILES:** Tailwind is pre-configured. Do NOT generate index.css or styles.css.
-14. **NO @APPLY:** Do NOT use `@apply` in any CSS. It does not work in the preview.
-15. **CUSTOM EFFECTS:** Use inline style prop for effects not in Tailwind:
+13. **NO @APPLY:** Do NOT use `@apply` in any CSS. It does not work in the preview.
+14. **CUSTOM EFFECTS:** Use inline style prop for effects not in Tailwind:
     - `style={{ textShadow: '0 0 10px rgba(...)' }}`
     - `style={{ boxShadow: '0 0 20px rgba(...)' }}`
+15. **OPTIONAL CSS FILE:** If you need custom animations or styles beyond Tailwind,
+    create a `/styles.css` file and import it in App.tsx: `import './styles.css';`
 
 #############################################
 DESIGN REQUIREMENTS (CRITICAL)
@@ -213,7 +246,7 @@ OUTPUT FORMAT (STRICT)
 #############################################
 
 21. **JSON ONLY:** Return a single JSON object with a "files" key, and optionally a "summary" key.
-    - Keys: File paths starting with / (e.g., "/App.tsx")
+    - Keys: File paths starting with / (e.g., "/App.tsx", "/components/Header.tsx")
     - Values: Complete code as string.
     - NO MARKDOWN. NO ```json``` blocks. Raw JSON only.
 22. **INCLUDE:** `/package.json` with react, react-dom, lucide-react.
@@ -223,13 +256,10 @@ OUTPUT FORMAT (STRICT)
     - Features List (based on the user's prompt).
     - Tech Stack (React, Tailwind, Supabase, etc.).
     - Setup Instructions (e.g., 'npm install', 'npm run dev').
-    If you are modifying an existing project, you MUST update the README.md to reflect the new changes (e.g., if you added a new page, list it in the features).
+    If you are modifying an existing project, you MUST update the README.md to reflect the new changes.
 
-EXAMPLE OUTPUT FOR NEW PROJECT:
-{"files": {"/App.tsx": "import React, { useState } from 'react';\\nimport { Star } from 'lucide-react';\\n\\nfunction Header({ title }: { title: string }) {\\n  return <h1 className=\\"text-3xl font-bold\\">{title}</h1>;\\n}\\n\\nexport default function App() {\\n  return (\\n    <div className=\\"min-h-screen bg-slate-50 p-8\\">\\n      <Header title=\\"My App\\" />\\n    </div>\\n  );\\n}", "/package.json": "{\\"dependencies\\": {\\"react\\": \\"^18.0.0\\", \\"react-dom\\": \\"^18.0.0\\", \\"lucide-react\\": \\"latest\\"}}"}}
-
-EXAMPLE OUTPUT FOR MODIFICATION:
-{"summary": "Added a dark mode toggle button to the header.\\n- Updated color palette in tailwind classes.", "files": {"/App.tsx": "...", "/package.json": "..."}}
+EXAMPLE OUTPUT:
+{"files": {"/App.tsx": "import React from 'react';\\nimport Header from './components/Header';\\nimport Hero from './components/Hero';\\n\\nexport default function App() {\\n  return (\\n    <div className=\\"min-h-screen\\">\\n      <Header />\\n      <Hero />\\n    </div>\\n  );\\n}", "/components/Header.tsx": "import React from 'react';\\nimport { Menu } from 'lucide-react';\\n\\nexport default function Header() {\\n  return <nav className=\\"p-4\\">Header</nav>;\\n}", "/components/Hero.tsx": "import React from 'react';\\n\\nexport default function Hero() {\\n  return <section className=\\"py-20\\">Hero</section>;\\n}", "/package.json": "{\\"dependencies\\": {\\"react\\": \\"^18.0.0\\", \\"react-dom\\": \\"^18.0.0\\", \\"lucide-react\\": \\"latest\\"}}", "/README.md": "# My App\\n\\nA modern React application."}}
     """
     return CODER_SYSTEM_PROMPT
 
@@ -246,7 +276,7 @@ The user has uploaded an image available at this URL: {image_asset_url}
 CRITICAL INSTRUCTION: If the user's request implies displaying this image (e.g., "use my photo", "add the logo"), you MUST use this exact URL in the 'src' attribute of an <img> tag or as a CSS background-image. Do not use placeholder URLs for this specific asset.
 """
     CODER_TASK_PROMPT = f"""
-Based on the implementation plan below, generate a **PURE REACT** application.
+Based on the implementation plan below, generate a **PURE REACT** application with MODULAR COMPONENTS.
 
 Implementation Plan:
 {task_plan_json}
@@ -261,8 +291,7 @@ You MUST use the EXACT data from the plan - do NOT invent placeholder content!
 
 1. **PERSON'S NAME:** Use the EXACT name from the plan (e.g., "Ashish Jupaka", NOT "John Doe")
 2. **PROJECTS:** Display the ACTUAL project names, descriptions, and technologies from the plan
-   - Do NOT create fake projects like "E-Commerce Platform" or "Task Manager" unless they are in the plan
-3. **SKILLS:** Use the ACTUAL skills listed (e.g., if plan says "Python, React, AWS" - use those EXACT skills)
+3. **SKILLS:** Use the ACTUAL skills listed
 4. **EDUCATION:** Use ACTUAL schools, degrees, dates from the plan
 5. **CERTIFICATIONS:** Use ACTUAL certification names and issuers from the plan
 6. **EXPERIENCE:** Use ACTUAL job titles, companies, dates from the plan
@@ -273,11 +302,21 @@ You MUST use the EXACT data from the plan - do NOT invent placeholder content!
 CRITICAL TECH REQUIREMENTS
 #############################################
 
-1. **Target File:** Generate `/App.tsx` as the entry point. NEVER create `/App.js` or `/App.jsx`.
-2. **Single File:** Put ALL components, hooks, utilities inside `/App.tsx`.
-3. **No Separate Files:** Do NOT create /components/ or /hooks/ folders.
-4. **No CSS Files:** Tailwind is pre-configured. Do NOT generate index.css or styles.css.
+1. **Target File:** Generate `/App.tsx` as the ROOT entry point. NEVER create `/App.js` or `/App.jsx`.
+2. **Modular Components:** Create separate files under `/components/` for each major section.
+3. **Imports:** `/App.tsx` must import all component files using relative paths: `import Header from './components/Header'`
+4. **No CSS Files:** Tailwind is pre-configured. Do NOT generate index.css or styles.css unless you need custom animations.
 5. **No @apply:** Write all Tailwind classes directly in the JSX `className`.
+
+#############################################
+FILE STRUCTURE
+#############################################
+
+Generate these files:
+- `/App.tsx` — Root component that imports and composes all sub-components
+- `/components/[Name].tsx` — One file per major UI section (Header, Hero, Features, etc.)
+- `/package.json` — Dependencies
+- `/README.md` — Documentation
 
 #############################################
 DESIGN REQUIREMENTS
@@ -295,30 +334,15 @@ DESIGN REQUIREMENTS
 - **Icons:** Use Lucide icons for professional polish.
 
 #############################################
-CORRECT PATTERN
-#############################################
-
-```tsx
-// ALL components defined in the same file
-function MyComponent({{ prop }}: {{ prop: string }}) {{
-  return <div className="p-4">{{prop}}</div>;
-}}
-
-// Main App uses them
-export default function App() {{
-  return <MyComponent prop="value" />;
-}}
-```
-
-#############################################
 GENERATE NOW
 #############################################
 
-Return JSON with ONLY:
-- /App.tsx (ALL code in one file)
+Return JSON with:
+- /App.tsx (root that imports components)
+- /components/[Name].tsx (one per section)
 - /package.json
 - /README.md
-NO OTHER FILES. Use the EXACT data from the plan - no placeholders also choose appropriate colors and themes!
+Use the EXACT data from the plan - no placeholders! Choose appropriate colors and themes!
 {asset_instruction}
     """
     return CODER_TASK_PROMPT
@@ -376,10 +400,10 @@ MODIFICATION RULES (CRITICAL)
 
 1. **PRESERVE EXISTING FUNCTIONALITY:** Do NOT break or remove any existing features.
 2. **INCREMENTAL CHANGES:** Only modify what is necessary to fulfill the request.
-3. **SAME ARCHITECTURE:** Keep all components in the same /App.tsx file.
+3. **MODULAR ARCHITECTURE:** Keep the multi-file component structure. You may add new `/components/*.tsx` files if needed.
 4. **SAME STYLING APPROACH:** Continue using Tailwind CSS classes inline.
 5. **TYPESCRIPT:** Maintain .tsx format with proper TypeScript types.
-6. **NO NEW FILES:** Do NOT create separate component or CSS files.
+6. **IMPORTS:** If adding new components, update `/App.tsx` imports accordingly.
 7. **FIX ALL REVIEW ISSUES:** If code review feedback is provided above, address ALL the issues mentioned.
 
 #############################################
@@ -387,9 +411,9 @@ OUTPUT FORMAT
 #############################################
 
 Return ONLY raw JSON (no markdown, no code fences):
-{{"summary": "Brief bullet-point summary of exactly what you changed\\n- Added light mode\\n- Fixed header alignment", "files": {{"/App.tsx": "complete updated code here", "/package.json": "..."}}}}
+{{"summary": "Brief bullet-point summary of exactly what you changed\\n- Added light mode\\n- Fixed header alignment", "files": {{"/App.tsx": "complete updated code here", "/components/Header.tsx": "...", "/package.json": "..."}}}}
 
-The /App.tsx should contain the COMPLETE updated code with the modification applied.
+Include ALL files in the output — both modified and unmodified ones. The entire app will be replaced with your response.
 Keep all existing functionality and just add/modify what the user requested.
 {asset_instruction}
     """
@@ -456,5 +480,3 @@ Example:
 {{"review_feedback": "## Code Review\\n\\n### ✅ Implemented Well\\n- Feature X is complete\\n\\n### ⚠️ Issues Found\\n\\n1. **Missing Error Handling**\\n   - The form submission has no error state\\n\\n2. **Incomplete Feature**\\n   - Dark mode toggle is in the UI but doesn't work\\n\\n### 💡 Suggestions\\n- Add loading spinner during API calls"}}
     """
     return REVIEWER_PROMPT
-
-

@@ -8,9 +8,10 @@ import {
     ArrowRight, Sparkles, Zap,
     Bot, PenTool, Braces, Eye,
     ChevronDown, Linkedin, CheckCircle2,
-    Menu, X, Instagram, Github
+    Menu, X, Instagram, Github, Sun, Moon
 } from 'lucide-react';
 import { useSupabase } from '@/components/SupabaseProvider';
+import { useTheme } from '@/components/ThemeProvider';
 import { createClient } from '@/lib/supabase';
 import { HeroParallax } from '@/components/ui/hero-parallax';
 import { AnimatedHeroCard } from '@/components/ui/animated-hero-card';
@@ -198,6 +199,7 @@ const FooterTextReveal = () => {
 
 export default function HomePage() {
     const { user, isLoading } = useSupabase();
+    const { theme, toggleTheme } = useTheme();
     const router = useRouter();
     const [openFaq, setOpenFaq] = useState<number | null>(0);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -243,32 +245,32 @@ export default function HomePage() {
     };
 
     return (
-        <div className="min-h-screen bg-[#050505] text-zinc-50 font-sans selection:bg-emerald-500/30">
+        <div className="min-h-screen bg-[var(--lucid-bg)] text-[var(--lucid-text-primary)] font-sans selection:bg-emerald-500/30 transition-colors duration-300">
             {/* --- Premium Navbar --- */}
             <motion.nav
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-                className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between pointer-events-none bg-[#050505]/60 backdrop-blur-xl border-b border-white/5"
+                className="fixed top-0 left-0 right-0 z-50 px-6 py-4 flex items-center justify-between pointer-events-none bg-[var(--lucid-bg)]/80 backdrop-blur-xl border-b border-[var(--lucid-border)]"
             >
                 {/* Logo Area */}
                 <div className="flex items-center gap-3 pointer-events-auto shrink-0">
-                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 border border-white/10 backdrop-blur-md">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)] backdrop-blur-md">
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
                             <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
                             <polyline points="22 8.5 12 15.5 2 8.5" />
                             <line x1="12" y1="22" x2="12" y2="15.5" />
                         </svg>
                     </div>
-                    <span className="text-xl font-bold tracking-tight">DevOpus</span>
+                    <span className="text-xl font-bold tracking-tight text-[var(--lucid-text-primary)]">DevOpus</span>
                 </div>
 
                 {/* Center Navigation Links (Hidden on mobile and tablet) */}
                 <div className="hidden lg:flex items-center gap-8 pointer-events-auto absolute left-1/2 -translate-x-1/2">
-                    <a href="#features" className="text-sm font-medium text-zinc-400 hover:text-zinc-50 transition-colors">Features</a>
-                    <a href="#how-it-works" className="text-sm font-medium text-zinc-400 hover:text-zinc-50 transition-colors">How it Works</a>
-                    <Link href="/pricing" className="text-sm font-medium text-zinc-400 hover:text-zinc-50 transition-colors">Pricing</Link>
-                    <Link href="/careers" className="text-sm font-medium text-zinc-400 hover:text-zinc-50 transition-colors">Careers</Link>
+                    <a href="#features" className="text-sm font-medium text-[var(--lucid-text-secondary)] hover:text-[var(--lucid-text-primary)] transition-colors">Features</a>
+                    <a href="#how-it-works" className="text-sm font-medium text-[var(--lucid-text-secondary)] hover:text-[var(--lucid-text-primary)] transition-colors">How it Works</a>
+                    <Link href="/pricing" className="text-sm font-medium text-[var(--lucid-text-secondary)] hover:text-[var(--lucid-text-primary)] transition-colors">Pricing</Link>
+                    <Link href="/careers" className="text-sm font-medium text-[var(--lucid-text-secondary)] hover:text-[var(--lucid-text-primary)] transition-colors">Careers</Link>
                 </div>
 
                 {/* Nav Actions / CTAs */}
@@ -276,16 +278,16 @@ export default function HomePage() {
                     <div className="hidden lg:flex items-center gap-4">
                         {!isLoading && user ? (
                             <>
-                                <Link href="/dashboard" className="text-sm font-medium text-zinc-400 hover:text-zinc-50 transition-colors">
+                                <Link href="/dashboard" className="text-sm font-medium text-[var(--lucid-text-secondary)] hover:text-[var(--lucid-text-primary)] transition-colors">
                                     Dashboard
                                 </Link>
-                                <button onClick={handleSignOut} className="text-sm font-medium text-zinc-400 hover:text-zinc-50 transition-colors">
+                                <button onClick={handleSignOut} className="text-sm font-medium text-[var(--lucid-text-secondary)] hover:text-[var(--lucid-text-primary)] transition-colors">
                                     Sign Out
                                 </button>
                             </>
                         ) : !isLoading ? (
                             <>
-                                <Link href="/login" className="text-sm font-medium text-zinc-400 hover:text-zinc-50 transition-colors">
+                                <Link href="/login" className="text-sm font-medium text-[var(--lucid-text-secondary)] hover:text-[var(--lucid-text-primary)] transition-colors">
                                     Sign In
                                 </Link>
                             </>
@@ -298,9 +300,18 @@ export default function HomePage() {
                         Get Started
                     </Link>
 
-                    {/* Hamburger Button */}
+                    {/* Theme Toggle + Hamburger */}
                     <button
-                        className="lg:hidden w-10 h-10 flex items-center justify-center text-zinc-300 hover:text-white transition-colors"
+                        onClick={toggleTheme}
+                        className="p-2 rounded-lg transition-all hover:scale-105 pointer-events-auto"
+                        style={{ color: 'var(--lucid-text-muted)', background: 'var(--lucid-bg-secondary)', border: '1px solid var(--lucid-border)' }}
+                        title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                    >
+                        {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                    </button>
+                    <button
+                        className="lg:hidden w-10 h-10 flex items-center justify-center transition-colors pointer-events-auto"
+                        style={{ color: 'var(--lucid-text-secondary)' }}
                         onClick={() => setIsMobileMenuOpen(true)}
                     >
                         <Menu size={24} />
@@ -463,7 +474,7 @@ export default function HomePage() {
             </section>
 
             {/* --- How It Works Pipeline --- */}
-            <section id="how-it-works" className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-zinc-900">
+            <section id="how-it-works" className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-[var(--lucid-border)]">
                 <FadeUp>
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">The Engine.</h2>
                     <p className="text-xl text-zinc-500 font-light max-w-2xl mb-20">A sophisticated 4-agent architecture working in perfect harmony.</p>
@@ -549,7 +560,7 @@ export default function HomePage() {
             </section>
 
             {/* --- Features Bento Grid --- */}
-            <section id="features" className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-zinc-900">
+            <section id="features" className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-[var(--lucid-border)]">
                 <FadeUp>
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Unfair Advantages.</h2>
                     <p className="text-xl text-zinc-500 font-light max-w-2xl mb-20">Everything you need to go from idea to deployment in seconds.</p>
@@ -619,7 +630,7 @@ export default function HomePage() {
             </section>
 
             {/* --- Testimonials --- */}
-            <section className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-zinc-900">
+            <section className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-[var(--lucid-border)]">
                 <FadeUp>
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-center mb-20 text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500">Beloved by Builders.</h2>
                 </FadeUp>
@@ -650,7 +661,7 @@ export default function HomePage() {
             </section>
 
             {/* --- FAQ --- */}
-            <section className="py-32 px-6 sm:px-12 max-w-3xl mx-auto border-t border-zinc-900">
+            <section className="py-32 px-6 sm:px-12 max-w-3xl mx-auto border-t border-[var(--lucid-border)]">
                 <FadeUp>
                     <h2 className="text-3xl font-bold tracking-tight mb-12">Frequently Asked Questions</h2>
                 </FadeUp>
@@ -689,7 +700,7 @@ export default function HomePage() {
             </section>
 
             {/* --- Massive Typography Footer --- */}
-            <footer className="relative bg-[#050505] pt-32 pb-12 px-6 sm:px-12 overflow-hidden border-t border-zinc-900">
+            <footer className="relative bg-[var(--lucid-bg)] pt-32 pb-12 px-6 sm:px-12 overflow-hidden border-t border-[var(--lucid-border)] transition-colors duration-300">
                 <div className="max-w-7xl mx-auto relative z-10 flex flex-col md:flex-row justify-between mb-20 gap-10">
                     <div className="max-w-xs">
                         <div className="flex items-center gap-3 mb-6">

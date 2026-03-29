@@ -3,8 +3,9 @@
 import { useRef, useEffect, useState } from 'react';
 import SmartInput, { AttachmentPayload } from './SmartInput';
 import MermaidDiagram from './MermaidDiagram';
-import { Network, ChevronDown, ChevronUp, ClipboardCheck, User, Bot, Loader2, ChevronLeft, Maximize2, X } from 'lucide-react';
+import { Network, ChevronDown, ChevronUp, ClipboardCheck, User, Bot, Loader2, ChevronLeft, Maximize2, X, Sun, Moon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useTheme } from './ThemeProvider';
 
 type GenerationStage = 'idle' | 'planning' | 'architecting' | 'coding' | 'reviewing' | 'modifying' | 'complete';
 
@@ -56,6 +57,7 @@ export default function ChatInterface({
     className = "",
 }: ChatInterfaceProps) {
     const router = useRouter();
+    const { theme, toggleTheme } = useTheme();
     const [showArchitecture, setShowArchitecture] = useState(true);
     const [showReview, setShowReview] = useState(true);
     const [expandedSection, setExpandedSection] = useState<'plan' | 'architect' | 'review' | null>(null);
@@ -107,19 +109,20 @@ export default function ChatInterface({
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => router.push('/dashboard')}
-                            className="p-1.5 -ml-1.5 rounded-md text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                            className="p-1.5 -ml-1.5 rounded-md hover:bg-white/5 transition-colors"
+                            style={{ color: 'var(--lucid-text-muted)' }}
                             title="Back to Dashboard"
                         >
                             <ChevronLeft size={20} />
                         </button>
-                        <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-white/5 border border-white/10 backdrop-blur-md shrink-0">
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center border backdrop-blur-md shrink-0" style={{ background: 'var(--lucid-bg-secondary)', borderColor: 'var(--lucid-border)' }}>
                             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="2">
                                 <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
                                 <polyline points="22 8.5 12 15.5 2 8.5" />
                                 <line x1="12" y1="22" x2="12" y2="15.5" />
                             </svg>
                         </div>
-                        <div>
+                        <div className="flex-1">
                             <h1
                                 className="text-lg font-semibold tracking-tight"
                                 style={{ color: 'var(--lucid-text-primary)' }}
@@ -132,6 +135,19 @@ export default function ChatInterface({
                                 Ready to Ship !
                             </p>
                         </div>
+                        {/* Theme Toggle */}
+                        <button
+                            onClick={toggleTheme}
+                            className="p-2 rounded-lg transition-all hover:scale-105"
+                            style={{
+                                color: 'var(--lucid-text-muted)',
+                                background: 'var(--lucid-bg-secondary)',
+                                border: '1px solid var(--lucid-border)',
+                            }}
+                            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                        >
+                            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+                        </button>
                     </div>
                 </div>
 

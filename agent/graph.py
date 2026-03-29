@@ -16,14 +16,12 @@ _ = load_dotenv()
 set_debug(True)
 set_verbose(True)
 
-# Model configuration - separate models for each role
-# Planner & Architect: Claude Sonnet 4.5 (high intelligence for planning)
-# Coder: Claude Haiku 4.5 (cost-efficient for code generation)
-# max_tokens increased to prevent truncation on complex tasks
+# Model configuration - all agents use Haiku for cost-efficiency
+# max_tokens increased to prevent truncation on complex multi-component apps
 
-planner_llm = ChatAnthropic(model="claude-sonnet-4-6", temperature=0, max_tokens=4096)
-architect_llm = ChatAnthropic(model="claude-sonnet-4-6", temperature=0, max_tokens=8192)
-coder_llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0, max_tokens=16384)
+planner_llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0, max_tokens=8192)
+architect_llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0, max_tokens=16384)
+coder_llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0, max_tokens=64000)
 
 
 def planner_agent(state: dict) -> dict:

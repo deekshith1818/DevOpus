@@ -263,7 +263,7 @@ export interface TimerState { sessionMode: SessionMode; timeRemaining: number; i
           </div>
           <div style={{ display: mode === 'code' ? 'flex' : 'none', flex: 1, height: '100%', width: '100%' }}>
             <SandpackFileExplorer style={{ height: '100%', minWidth: '180px', maxWidth: '220px', background: 'var(--lucid-bg-secondary)', borderRight: '1px solid var(--lucid-border)' }} />
-            <SandpackCodeEditor showTabs={false} showLineNumbers={true} showInlineErrors={true} wrapContent={true} readOnly={true} style={{ height: '100%', flex: 1 }} />
+            <SandpackCodeEditor showTabs={true} showLineNumbers={true} showInlineErrors={true} wrapContent={true} style={{ height: '100%', flex: 1 }} />
           </div>
         </SandpackLayout>
       </SandpackProvider>

@@ -72,7 +72,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
             try {
                 // Fetch project with code_snapshot from backend
-                const response = await fetch(`http://localhost:8000/projects/single/${projectId}`);
+                const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/single/${projectId}`);
                 if (!response.ok) {
                     setFetchError('Project not found');
                     setIsFetchingProject(false);
@@ -112,7 +112,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 // Fallback: try loading from latest version (for very old projects)
                 if (!planText && !archText) {
                     try {
-                        const versionRes = await fetch(`http://localhost:8000/projects/${projectId}/latest`);
+                        const versionRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/latest`);
                         if (versionRes.ok) {
                             const versionData = await versionRes.json();
                             if (versionData.plan_snapshot) setPlan(versionData.plan_snapshot);
@@ -127,7 +127,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
 
                 // Load chat history from versions
                 try {
-                    const versionsRes = await fetch(`http://localhost:8000/projects/${projectId}/versions`);
+                    const versionsRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/versions`);
                     if (versionsRes.ok) {
                         const { versions } = await versionsRes.json();
                         if (versions && versions.length > 0) {
@@ -228,7 +228,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 return;
             }
 
-            const response = await fetch('http://localhost:8000/api/export-to-github', {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/export-to-github`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -283,12 +283,18 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 if (imageAssetUrl) console.log('Asset uploaded:', imageAssetUrl);
             }
 
-            const response = await fetch('http://localhost:8000/followup-stream', {
+            // Normalize files to plain strings (Supabase stores them as {code: "..."} objects)
+            const normalizedFiles: Record<string, string> = {};
+            Object.entries(files).forEach(([path, content]) => {
+                normalizedFiles[path] = typeof content === 'string' ? content : (content as { code: string })?.code || '';
+            });
+
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/followup-stream`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     prompt,
-                    current_files: files,
+                    current_files: normalizedFiles,
                     review_feedback: review,
                     attachment: attachment ? {
                         name: attachment.name,
@@ -298,7 +304,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                     } : null,
                     user_id: user?.id || null,
                     project_id: projectId,
-                    image_asset_url: imageAssetUrl, // Pass persistent URL
+                    image_asset_url: imageAssetUrl,
                 }),
             });
 
@@ -315,39 +321,48 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 if (done) break;
 
                 buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split('\n');
-                buffer = lines.pop() || '';
 
-                for (const line of lines) {
-                    if (line.startsWith('data: ')) {
-                        try {
-                            const data = JSON.parse(line.slice(6));
-                            switch (data.stage) {
-                                case 'modifying':
-                                    setStage('modifying');
-                                    break;
-                                case 'complete':
-                                    if (data.files) setFiles(data.files);
-                                    setStage('complete');
-                                    // Clear stored version — new follow-up creates a new latest version
-                                    sessionStorage.removeItem(`devopus-version-${projectId}`);
-                                    // Add response to the last follow-up message
-                                    setFollowUpMessages(prev => {
-                                        const updated = [...prev];
-                                        if (updated.length > 0) {
-                                            updated[updated.length - 1].response = data.summary || 'Modifications applied successfully.';
-                                        }
-                                        return updated;
-                                    });
-                                    break;
-                                case 'error':
-                                    console.error('Follow-up error:', data.message);
-                                    setStage('complete');
-                                    break;
-                            }
-                        } catch {
-                            console.warn('Failed to parse SSE data:', line);
+                // Split on SSE event boundaries (\n\n), not single newlines
+                const events = buffer.split('\n\n');
+                buffer = events.pop() ?? '';
+
+                for (const event of events) {
+                    const dataLines = event
+                        .split('\n')
+                        .filter(l => l.startsWith('data: '))
+                        .map(l => l.slice(6));
+
+                    if (dataLines.length === 0) continue;
+
+                    const rawJson = dataLines.join('\n');
+
+                    try {
+                        const data = JSON.parse(rawJson);
+                        switch (data.stage) {
+                            case 'modifying':
+                                setStage('modifying');
+                                break;
+                            case 'complete':
+                                if (data.files) setFiles(data.files);
+                                setStage('complete');
+                                // Clear stored version — new follow-up creates a new latest version
+                                sessionStorage.removeItem(`devopus-version-${projectId}`);
+                                // Add response to the last follow-up message
+                                setFollowUpMessages(prev => {
+                                    const updated = [...prev];
+                                    if (updated.length > 0) {
+                                        updated[updated.length - 1].response = data.summary || 'Modifications applied successfully.';
+                                    }
+                                    return updated;
+                                });
+                                break;
+                            case 'error':
+                                console.error('Follow-up error:', data.message);
+                                setStage('complete');
+                                break;
                         }
+                    } catch {
+                        console.warn('Failed to parse SSE data:', rawJson.slice(0, 100));
                     }
                 }
             }
@@ -362,7 +377,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     // Revert handler
     const handleRevert = async (versionId: string) => {
         try {
-            const response = await fetch(`http://localhost:8000/versions/${versionId}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/versions/${versionId}`);
             if (!response.ok) throw new Error('Failed to fetch version');
             const version = await response.json();
 

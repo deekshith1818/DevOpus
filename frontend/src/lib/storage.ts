@@ -14,7 +14,7 @@ export async function uploadAsset(fileData: string, fileName: string, _fileType:
         const formData = new FormData();
         formData.append('file', blob, fileName);
 
-        const uploadResponse = await fetch('http://localhost:8000/api/upload-asset', {
+        const uploadResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/upload-asset`, {
             method: 'POST',
             body: formData,
         });

@@ -161,7 +161,7 @@ export default function SmartInput({
                         <div className="flex flex-wrap gap-2">
                             {images.map((img) => (
                                 <div key={img.id} className="relative group">
-                                    <div className="w-14 h-14 rounded-lg overflow-hidden border border-[#1f1f1f]">
+                                    <div className="w-14 h-14 rounded-lg overflow-hidden border border-[var(--lucid-border)]">
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img src={img.data} alt={img.name} className="w-full h-full object-cover" />
                                     </div>
@@ -175,27 +175,27 @@ export default function SmartInput({
                             ))}
                             <button
                                 onClick={() => imageInputRef.current?.click()}
-                                className="w-14 h-14 rounded-lg flex items-center justify-center border-2 border-dashed border-[#1f1f1f] bg-[#0a0a0a] hover:border-[#22c55e]/50 transition-colors"
+                                className="w-14 h-14 rounded-lg flex items-center justify-center border-2 border-dashed border-[var(--lucid-border)] bg-[var(--lucid-bg-secondary)] hover:border-[var(--lucid-green)]/50 transition-colors"
                             >
-                                <Plus size={18} className="text-gray-500" />
+                                <Plus size={18} className="text-[var(--lucid-text-muted)]" />
                             </button>
                         </div>
                     )}
 
                     {pdf && (
-                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#0a0a0a] border border-[#1f1f1f]">
-                            <div className="w-8 h-8 rounded flex items-center justify-center bg-[#22c55e]/10">
-                                <FileText size={16} className="text-[#22c55e]" />
+                        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)]">
+                            <div className="w-8 h-8 rounded flex items-center justify-center bg-[var(--lucid-green)]/10">
+                                <FileText size={16} className="text-[var(--lucid-green)]" />
                             </div>
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-white truncate">{pdf.name}</p>
-                                <p className="text-xs text-gray-500">PDF Document</p>
+                                <p className="text-sm font-medium text-[var(--lucid-text-primary)] truncate">{pdf.name}</p>
+                                <p className="text-xs text-[var(--lucid-text-secondary)]">PDF Document</p>
                             </div>
                             <button
                                 onClick={removePdf}
-                                className="p-1 rounded-full bg-[#1f1f1f] hover:bg-[#2f2f2f] transition-colors"
+                                className="p-1 rounded-full bg-[var(--lucid-border)] hover:bg-[var(--lucid-border-highlight)] transition-colors"
                             >
-                                <X size={12} className="text-gray-400" />
+                                <X size={12} className="text-[var(--lucid-text-muted)]" />
                             </button>
                         </div>
                     )}
@@ -203,7 +203,7 @@ export default function SmartInput({
             )}
 
             {/* Input Area - items-start keeps buttons at top, aligned with first line of text */}
-            <div className="flex items-start gap-3 rounded-2xl border border-[#1f1f1f] bg-[#050505] px-4 py-3 focus-within:border-[#22c55e] focus-within:ring-2 focus-within:ring-[#22c55e]/20 transition-all duration-200">
+            <div className="flex items-start gap-3 rounded-2xl border border-[var(--lucid-border)] bg-[var(--lucid-bg-secondary)] px-4 py-3 focus-within:border-[var(--lucid-green)] focus-within:ring-2 focus-within:ring-[var(--lucid-green)]/20 transition-all duration-200">
                 {/* Hidden file inputs */}
                 <input ref={imageInputRef} type="file" accept="image/*" multiple onChange={handleImageSelect} className="hidden" />
                 <input ref={pdfInputRef} type="file" accept="application/pdf,.pdf" onChange={handlePdfSelect} className="hidden" />
@@ -215,7 +215,7 @@ export default function SmartInput({
                         disabled={isLoading || disabled}
                         className={cn(
                             "w-7 h-7 rounded-full flex items-center justify-center transition-all duration-200",
-                            showDropdown ? "bg-[#22c55e]/20 text-[#22c55e]" : "bg-[#1f1f1f] text-gray-400 hover:text-white hover:bg-[#2f2f2f]",
+                            showDropdown ? "bg-[var(--lucid-green)]/20 text-[var(--lucid-green)]" : "bg-[var(--lucid-border)] text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] hover:bg-[var(--lucid-border-highlight)]",
                             (isLoading || disabled) && "opacity-50 cursor-not-allowed"
                         )}
                     >
@@ -223,17 +223,17 @@ export default function SmartInput({
                     </button>
 
                     {showDropdown && (
-                        <div className="absolute bottom-full left-0 mb-2 rounded-xl shadow-2xl z-50 overflow-hidden bg-[#1a1a1a] border border-white/10" style={{ minWidth: '180px' }}>
-                            <button onClick={() => imageInputRef.current?.click()} className="w-full flex items-center gap-3 px-4 py-3 text-left text-gray-200 hover:bg-white/5">
-                                <Paperclip size={16} className="text-gray-400" />
+                        <div className="absolute bottom-full left-0 mb-2 rounded-xl shadow-2xl z-50 overflow-hidden bg-[var(--lucid-bg)] border border-[var(--lucid-border)]" style={{ minWidth: '180px' }}>
+                            <button onClick={() => imageInputRef.current?.click()} className="w-full flex items-center gap-3 px-4 py-3 text-left text-[var(--lucid-text-primary)] hover:bg-[var(--lucid-border)]">
+                                <Paperclip size={16} className="text-[var(--lucid-text-muted)]" />
                                 <span className="text-sm">Attach an image</span>
                             </button>
                             <button
                                 onClick={() => !pdf && pdfInputRef.current?.click()}
                                 disabled={!!pdf}
-                                className={cn("w-full flex items-center gap-3 px-4 py-3 text-left", pdf ? "text-gray-600 cursor-not-allowed opacity-50" : "text-gray-200 hover:bg-white/5")}
+                                className={cn("w-full flex items-center gap-3 px-4 py-3 text-left", pdf ? "text-[var(--lucid-text-muted)] cursor-not-allowed opacity-50" : "text-[var(--lucid-text-primary)] hover:bg-[var(--lucid-border)]")}
                             >
-                                <FileText size={16} className={pdf ? "text-gray-600" : "text-gray-400"} />
+                                <FileText size={16} className={pdf ? "text-[var(--lucid-text-muted)]" : "text-[var(--lucid-text-secondary)]"} />
                                 <span className="text-sm">Attach a PDF</span>
                             </button>
                         </div>
@@ -244,7 +244,7 @@ export default function SmartInput({
                 <textarea
                     ref={textareaRef}
                     placeholder={placeholder}
-                    className="flex-1 bg-transparent text-white text-sm placeholder:text-gray-500 focus:outline-none resize-none leading-6"
+                    className="flex-1 bg-transparent text-[var(--lucid-text-primary)] text-sm placeholder:text-[var(--lucid-text-muted)] focus:outline-none resize-none leading-6"
                     style={{ height: '24px', maxHeight: '150px' }}
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
@@ -259,16 +259,16 @@ export default function SmartInput({
                     disabled={isLoading || disabled || !hasContent}
                     className={cn(
                         "flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 mt-0.5",
-                        isLoading ? "bg-transparent" : hasContent ? "bg-[#22c55e] hover:bg-[#16a34a]" : "bg-[#1f1f1f]"
+                        isLoading ? "bg-transparent" : hasContent ? "bg-[var(--lucid-green)] hover:bg-[var(--lucid-green-dim)]" : "bg-[var(--lucid-border)]"
                     )}
                 >
                     {isLoading ? (
                         <div
-                            className="w-4 h-4 bg-[#22c55e] rounded-sm animate-spin"
+                            className="w-4 h-4 bg-[var(--lucid-green)] rounded-sm animate-spin"
                             style={{ animationDuration: "3s" }}
                         />
                     ) : (
-                        <CornerRightUp size={14} className={cn("transition-colors", hasContent ? "text-black" : "text-gray-500")} />
+                        <CornerRightUp size={14} className={cn("transition-colors", hasContent ? "text-white" : "text-[var(--lucid-text-muted)]")} />
                     )}
                 </button>
             </div>

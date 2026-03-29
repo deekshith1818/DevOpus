@@ -25,6 +25,30 @@
   /* Legacy support */
   --background: var(--lucid-bg);
   --foreground: var(--lucid-text-primary);
+
+  color-scheme: dark;
+}
+
+/* ─── Light Theme ─────────────────────────── */
+[data-theme='light'] {
+  --lucid-bg: #ffffff;
+  --lucid-bg-secondary: #f5f5f5;
+  --lucid-bg-tertiary: #e5e5e5;
+  --lucid-green: #16a34a;
+  --lucid-green-dim: #15803d;
+  --lucid-green-glow: rgba(22, 163, 74, 0.1);
+
+  --lucid-text-primary: #0a0a0a;
+  --lucid-text-secondary: #525252;
+  --lucid-text-muted: #a3a3a3;
+
+  --lucid-border: #e5e5e5;
+  --lucid-border-highlight: #d4d4d4;
+
+  --background: var(--lucid-bg);
+  --foreground: var(--lucid-text-primary);
+
+  color-scheme: light;
 }
 
 @theme inline {
@@ -48,37 +72,37 @@ body {
    ======================================== */
 .sp-wrapper {
   height: 100% !important;
-  background: #050505 !important;
+  background: var(--lucid-bg) !important;
 }
 
 .sp-layout {
   height: 100% !important;
   border: none !important;
   border-radius: 0 !important;
-  background: #050505 !important;
+  background: var(--lucid-bg) !important;
 }
 
 .sp-stack {
-  background: #050505 !important;
+  background: var(--lucid-bg) !important;
 }
 
 .sp-editor {
   height: 100% !important;
-  background: #050505 !important;
+  background: var(--lucid-bg) !important;
 }
 
 .sp-preview-container {
   height: 100% !important;
-  background: #050505 !important;
+  background: var(--lucid-bg) !important;
 }
 
 .sp-preview {
-  background: #050505 !important;
+  background: var(--lucid-bg) !important;
 }
 
 /* Prevent white flash during resize - comprehensive iframe and loading state coverage */
 .sp-preview-iframe {
-  background: #09090b !important;
+  background: var(--lucid-bg-secondary) !important;
 }
 
 /* Cover all Sandpack loading states and containers */
@@ -90,14 +114,14 @@ body {
 .sp-cube-wrapper,
 .sp-preview iframe,
 [class*="sp-"] {
-  background: #050505 !important;
-  background-color: #050505 !important;
+  background: var(--lucid-bg) !important;
+  background-color: var(--lucid-bg) !important;
 }
 
 /* Force iframe background via attribute selector */
 iframe[title*="Sandpack"],
 iframe[title*="Preview"] {
-  background: #09090b !important;
+  background: var(--lucid-bg-secondary) !important;
 }
 
 /* Smooth transitions for preview during resize */

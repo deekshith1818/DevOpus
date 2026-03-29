@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { useSupabase } from '@/components/SupabaseProvider';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Plus, Clock, LogOut, Loader2, ArrowLeft, FolderPlus, Sparkles, Trash2 } from 'lucide-react';
+import { Plus, Clock, LogOut, Loader2, ArrowLeft, FolderPlus, Sparkles, Trash2, Sun, Moon } from 'lucide-react';
+import { useTheme } from '@/components/ThemeProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnimatedFolder } from '@/components/ui/3d-folder';
 
@@ -34,6 +35,7 @@ export default function DashboardPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const router = useRouter();
+    const { theme, toggleTheme } = useTheme();
 
     useEffect(() => {
         if (authLoading) return;
@@ -49,7 +51,7 @@ export default function DashboardPage() {
         if (!user) return;
         setIsLoading(true);
         try {
-            const response = await fetch(`http://localhost:8000/projects/user/${user.id}`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/user/${user.id}`);
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
                 console.error('Backend error:', response.status, errorData);
@@ -81,7 +83,7 @@ export default function DashboardPage() {
         setProjectToDelete(null);
 
         try {
-            const response = await fetch(`http://localhost:8000/projects/${projectId}`, {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`, {
                 method: 'DELETE',
             });
             if (!response.ok) throw new Error('Failed to delete');
@@ -122,7 +124,7 @@ export default function DashboardPage() {
 
     if (authLoading || isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+            <div className="min-h-screen flex items-center justify-center bg-[var(--lucid-bg)]">
                 <div className="flex flex-col items-center gap-4">
                     <div className="relative">
                         <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-xl animate-pulse" />
@@ -135,13 +137,13 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen relative bg-zinc-950 overflow-hidden">
+        <div className="min-h-screen relative overflow-hidden bg-[var(--lucid-bg)] transition-colors duration-300">
             {/* Background ambient glow */}
             <div className="fixed top-0 right-0 w-[600px] h-[600px] bg-emerald-500/[0.03] rounded-full blur-[120px] pointer-events-none" />
             <div className="fixed bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/[0.02] rounded-full blur-[100px] pointer-events-none" />
 
             {/* Header */}
-            <header className="relative z-10 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl sticky top-0">
+            <header className="relative z-10 border-b border-[var(--lucid-border)] bg-[var(--lucid-bg)]/80 backdrop-blur-xl sticky top-0 transition-colors duration-300">
                 <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/" className="text-zinc-500 hover:text-white transition-colors">
@@ -150,19 +152,26 @@ export default function DashboardPage() {
                         <div className="flex items-center gap-2.5">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#10b981" strokeWidth="1.5">
                                 <polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2" />
-                                <line x1="12" y1="22" x2="12" y2="15.5" />
                                 <polyline points="22 8.5 12 15.5 2 8.5" />
+                                <line x1="12" y1="22" x2="12" y2="15.5" />
                             </svg>
-                            <span className="text-white font-semibold text-lg">DevOpus</span>
+                            <span className="font-semibold text-lg text-[var(--lucid-text-primary)]">DevOpus</span>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <span className="text-zinc-600 text-sm hidden sm:inline">{user?.email}</span>
-                        <div className="h-4 w-px bg-zinc-800 hidden sm:block" />
+                        <span className="text-zinc-500 text-sm hidden sm:inline text-[var(--lucid-text-secondary)]">{user?.email}</span>
+                        <div className="h-4 w-px bg-[var(--lucid-border)] hidden sm:block" />
+                        <button
+                            onClick={toggleTheme}
+                            className="p-1.5 rounded-lg text-zinc-500 hover:text-[var(--lucid-text-primary)] hover:bg-[var(--lucid-border)] transition-all"
+                            title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+                        >
+                            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+                        </button>
                         <button
                             onClick={handleSignOut}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-white/5 transition-all text-sm"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-500 hover:text-[var(--lucid-text-primary)] hover:bg-red-500/10 hover:text-red-500 transition-all text-sm"
                         >
                             <LogOut size={14} />
                             Sign Out
@@ -182,7 +191,7 @@ export default function DashboardPage() {
                 >
                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
                         <div>
-                            <h1 className="text-4xl md:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-200 to-zinc-500 tracking-tight mb-3">
+                            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3 text-[var(--lucid-text-primary)]">
                                 Welcome back, {getUserName()}.
                             </h1>
                             <p className="text-zinc-500 text-lg font-light">
@@ -212,12 +221,12 @@ export default function DashboardPage() {
                         >
                             <div className="relative mb-8">
                                 <div className="absolute inset-0 rounded-full bg-emerald-500/10 blur-2xl scale-150" />
-                                <div className="relative w-24 h-24 rounded-3xl bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+                                <div className="relative w-24 h-24 rounded-3xl bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)] flex items-center justify-center">
                                     <FolderPlus size={40} strokeWidth={1} className="text-emerald-400/60" />
                                 </div>
                             </div>
-                            <h2 className="text-2xl font-bold text-white mb-3 tracking-tight">Your canvas is empty</h2>
-                            <p className="text-zinc-500 max-w-md mb-8 font-light">
+                            <h2 className="text-2xl font-bold mb-3 tracking-tight text-[var(--lucid-text-primary)]">Your canvas is empty</h2>
+                            <p className="max-w-md mb-8 font-light text-[var(--lucid-text-secondary)]">
                                 Start by describing the application you want to build. Our 4-agent pipeline will architect, code, and deliver it in seconds.
                             </p>
                             <Link
@@ -251,10 +260,10 @@ export default function DashboardPage() {
                                 style={{ minHeight: "280px" }}
                             >
                                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
-                                <div className="relative z-10 w-16 h-16 rounded-2xl bg-zinc-800/50 border border-zinc-700/50 flex items-center justify-center group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 transition-all duration-300 mb-4">
-                                    <Plus size={28} strokeWidth={1.5} className="text-zinc-500 group-hover:text-emerald-400 transition-colors duration-300" />
+                                <div className="relative z-10 w-16 h-16 rounded-2xl bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border-highlight)] flex items-center justify-center group-hover:border-emerald-500/30 group-hover:bg-emerald-500/10 transition-all duration-300 mb-4">
+                                    <Plus size={28} strokeWidth={1.5} className="text-[var(--lucid-text-muted)] group-hover:text-emerald-400 transition-colors duration-300" />
                                 </div>
-                                <span className="relative z-10 text-zinc-500 group-hover:text-emerald-400 text-sm font-semibold transition-colors duration-300">
+                                <span className="relative z-10 group-hover:text-emerald-400 text-sm font-semibold transition-colors duration-300 text-[var(--lucid-text-secondary)]">
                                     New Project
                                 </span>
                             </div>
@@ -312,19 +321,19 @@ export default function DashboardPage() {
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.95, y: 10 }}
                             transition={{ duration: 0.2 }}
-                            className="w-full max-w-md bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-2xl"
+                            className="w-full max-w-md bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)] rounded-2xl p-6 shadow-2xl"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <h3 className="text-lg font-semibold text-white mb-2">Delete Project?</h3>
-                            <p className="text-zinc-400 text-sm mb-6 leading-relaxed">
-                                Are you sure you want to delete <span className="text-white font-medium">&ldquo;{projectToDelete.name}&rdquo;</span>?
+                            <h3 className="text-lg font-semibold mb-2 text-[var(--lucid-text-primary)]">Delete Project?</h3>
+                            <p className="text-sm mb-6 leading-relaxed text-[var(--lucid-text-secondary)]">
+                                Are you sure you want to delete <span className="font-medium text-[var(--lucid-text-primary)]">&ldquo;{projectToDelete.name}&rdquo;</span>?
                                 This action cannot be undone and will delete all generated versions.
                             </p>
 
                             <div className="flex justify-end gap-3">
                                 <button
                                     onClick={() => setProjectToDelete(null)}
-                                    className="px-4 py-2 rounded-xl text-sm font-medium text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                                    className="px-4 py-2 rounded-xl text-sm font-medium hover:bg-white/5 transition-colors text-[var(--lucid-text-secondary)] hover:text-[var(--lucid-text-primary)]"
                                 >
                                     Cancel
                                 </button>

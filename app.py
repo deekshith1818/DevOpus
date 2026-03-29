@@ -453,11 +453,15 @@ async def generate_stream_endpoint(request: GenerateRequest):
 
 def run_coder_followup(modification_request: str, current_files: dict, review_feedback: str = "", image_asset_url: Optional[str] = None) -> dict:
     """Run the coder agent to modify existing code based on follow-up request."""
-    # Get the current App.tsx code
-    current_code = current_files.get("/App.tsx", current_files.get("App.tsx", ""))
+    # Build a combined representation of ALL current files for the LLM
+    all_code_parts = []
+    for filepath, code in current_files.items():
+        all_code_parts.append(f"// === FILE: {filepath} ===\n{code}")
     
-    if not current_code:
-        raise ValueError("No App.tsx found in current files")
+    current_code = "\n\n".join(all_code_parts)
+    
+    if not current_code.strip():
+        raise ValueError("No code files found to modify")
     
     system_prompt = coder_system_prompt()
     user_prompt = coder_followup_prompt(modification_request, current_code, review_feedback, image_asset_url)

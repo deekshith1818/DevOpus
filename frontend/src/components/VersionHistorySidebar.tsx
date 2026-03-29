@@ -42,7 +42,7 @@ export function VersionHistorySidebar({
 
         setIsLoading(true);
         try {
-            const response = await fetch(`http://localhost:8000/projects/${projectId}/versions`);
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/versions`);
             if (!response.ok) throw new Error('Failed to fetch versions');
             const data = await response.json();
             setVersions(data.versions);
