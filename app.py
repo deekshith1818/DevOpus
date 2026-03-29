@@ -11,7 +11,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
-from agent.graph import graph, planner_llm, architect_llm, coder_llm
+from agent.graph import graph, planner_llm, architect_llm, coder_llm, reviewer_llm
 from agent.states import Plan, TaskPlan, GeneratedProject
 from agent.prompts import planner_prompt, architect_prompt, coder_system_prompt, coder_task_prompt, coder_followup_prompt, reviewer_prompt
 from utils import process_multimodal_input, create_vision_message_content
@@ -20,9 +20,7 @@ import re
 import db as database
 import github_utils
 
-# Reviewer uses Sonnet like planner/architect
-from langchain_anthropic import ChatAnthropic
-reviewer_llm = ChatAnthropic(model_name="claude-sonnet-4-6", max_tokens=4096)
+# Reviewer LLM is now imported from agent.graph
 
 app = FastAPI(
     title="Code Generator API",

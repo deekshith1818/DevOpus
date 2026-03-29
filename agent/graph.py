@@ -8,7 +8,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.constants import END
 from langgraph.graph import StateGraph
 
-from agent.prompts import planner_prompt, architect_prompt, coder_system_prompt, coder_task_prompt
+from agent.prompts import planner_prompt, architect_prompt, coder_system_prompt, coder_task_prompt, reviewer_prompt
 from agent.states import Plan, TaskPlan, GeneratedProject
 
 _ = load_dotenv()
@@ -22,6 +22,7 @@ set_verbose(True)
 planner_llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0, max_tokens=8192)
 architect_llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0, max_tokens=16384)
 coder_llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0, max_tokens=64000)
+reviewer_llm = ChatAnthropic(model="claude-haiku-4-5-20251001", temperature=0, max_tokens=4096)
 
 
 def planner_agent(state: dict) -> dict:
@@ -164,16 +165,60 @@ def coder_agent(state: dict) -> dict:
     return {"generated_project": generated_project, "status": "DONE"}
 
 
+def reviewer_agent(state: dict) -> dict:
+    """Reviews the generated code against the plan and requirements."""
+    generated_project: GeneratedProject = state["generated_project"]
+    plan: Plan = state["plan"]
+    task_plan: TaskPlan = state["task_plan"]
+    user_prompt = state["user_prompt"]
+
+    # Format plan and architect text
+    plan_text = plan.model_dump_json() if hasattr(plan, 'model_dump_json') else str(plan)
+    architect_text = task_plan.model_dump_json() if hasattr(task_plan, 'model_dump_json') else str(task_plan)
+
+    # Combine all generated files into a single string for review
+    code_content = "\n\n".join(
+        [f"// File: {path}\n{content}" for path, content in generated_project.files.items()]
+    )
+
+    # Run reviewer
+    review_resp = reviewer_llm.invoke(
+        reviewer_prompt(
+            user_prompt=user_prompt,
+            plan=plan_text,
+            architecture=architect_text,
+            code_files=code_content
+        )
+    )
+
+    # Parse review response
+    import json as _json
+    review_text = review_resp.content
+    try:
+        cleaned = review_text.strip()
+        if cleaned.startswith("```"):
+            lines = cleaned.split('\n')
+            cleaned = '\n'.join(lines[1:-1] if lines[-1].strip() == '```' else lines[1:])
+        review_data = _json.loads(cleaned)
+        review_feedback = review_data.get("review_feedback", review_text)
+    except _json.JSONDecodeError:
+        review_feedback = review_text
+
+    return {"review_feedback": review_feedback}
+
+
 # Build the graph
 graph = StateGraph(dict)
 
 graph.add_node("planner", planner_agent)
 graph.add_node("architect", architect_agent)
 graph.add_node("coder", coder_agent)
+graph.add_node("reviewer", reviewer_agent)
 
 graph.add_edge("planner", "architect")
 graph.add_edge("architect", "coder")
-graph.add_edge("coder", END)
+graph.add_edge("coder", "reviewer")
+graph.add_edge("reviewer", END)
 
 graph.set_entry_point("planner")
 agent = graph.compile()
