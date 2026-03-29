@@ -5,6 +5,7 @@ Includes project persistence via Supabase.
 """
 import json
 import asyncio
+import os
 from typing import Optional, Any
 from fastapi import FastAPI, HTTPException, Query, Header, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
@@ -53,6 +54,7 @@ class GenerateRequest(BaseModel):
     user_id: Optional[str] = None  # From Supabase Auth
     project_id: Optional[str] = None  # Existing project to add version to
     image_asset_url: Optional[str] = None  # persistent image asset URL
+    pin_code: Optional[str] = None  # Optional access PIN
 
 
 class FollowUpRequest(BaseModel):
@@ -63,6 +65,7 @@ class FollowUpRequest(BaseModel):
     user_id: Optional[str] = None
     project_id: Optional[str] = None
     image_asset_url: Optional[str] = None  # persistent image asset URL
+    pin_code: Optional[str] = None  # Optional access PIN
 
 
 class ExportToGithubRequest(BaseModel):
@@ -162,12 +165,12 @@ def extract_architecture_diagram(task_plan_obj) -> str:
         return ""
 
 
-def run_coder_agent(task_plan: TaskPlan, image_asset_url: Optional[str] = None) -> dict:
+async def run_coder_agent(task_plan: TaskPlan, image_asset_url: Optional[str] = None) -> dict:
     """Run the coder agent independently to generate files."""
     system_prompt = coder_system_prompt()
     user_prompt = coder_task_prompt(task_plan.model_dump_json(), image_asset_url)
     
-    response = coder_llm.invoke([
+    response = await coder_llm.ainvoke([
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ])
@@ -266,17 +269,11 @@ Now create a detailed product plan as specified in the system instructions."""
                 HumanMessage(content=human_content)
             ]
             
-            plan_resp = await loop.run_in_executor(
-                None,
-                lambda: planner_llm.with_structured_output(Plan).invoke(messages)
-            )
+            plan_resp = await planner_llm.with_structured_output(Plan).ainvoke(messages)
         else:
             # Standard text-only planner
-            plan_resp = await loop.run_in_executor(
-                None,
-                lambda: planner_llm.with_structured_output(Plan).invoke(
-                    planner_prompt(processed_prompt, image_asset_url)
-                )
+            plan_resp = await planner_llm.with_structured_output(Plan).ainvoke(
+                planner_prompt(processed_prompt, image_asset_url)
             )
         
         if plan_resp is None:
@@ -290,11 +287,8 @@ Now create a detailed product plan as specified in the system instructions."""
         yield f"data: {json.dumps({'stage': 'architecting', 'message': 'Orchestrating things....'})}\n\n"
         
         # Run architect agent
-        task_plan_resp = await loop.run_in_executor(
-            None,
-            lambda: architect_llm.with_structured_output(TaskPlan).invoke(
-                architect_prompt(plan=plan_resp.model_dump_json())
-            )
+        task_plan_resp = await architect_llm.with_structured_output(TaskPlan).ainvoke(
+            architect_prompt(plan=plan_resp.model_dump_json())
         )
         
         if task_plan_resp is None:
@@ -311,10 +305,7 @@ Now create a detailed product plan as specified in the system instructions."""
         yield f"data: {json.dumps({'stage': 'coding', 'message': 'Generating the code....'})}\n\n"
         
         # Run coder agent
-        files_dict = await loop.run_in_executor(
-            None,
-            lambda: run_coder_agent(task_plan_resp, image_asset_url)
-        )
+        files_dict = await run_coder_agent(task_plan_resp, image_asset_url)
         
         # Send files (coder complete)
         yield f"data: {json.dumps({'stage': 'coding_complete', 'files': files_dict})}\n\n"
@@ -326,15 +317,12 @@ Now create a detailed product plan as specified in the system instructions."""
         code_content = "\n\n".join([f"// File: {path}\n{content}" for path, content in files_dict.items()])
         
         # Run reviewer agent
-        review_resp = await loop.run_in_executor(
-            None,
-            lambda: reviewer_llm.invoke(
-                reviewer_prompt(
-                    user_prompt=prompt,
-                    plan=plan_text,
-                    architecture=architect_text,
-                    code_files=code_content
-                )
+        review_resp = await reviewer_llm.ainvoke(
+            reviewer_prompt(
+                user_prompt=prompt,
+                plan=plan_text,
+                architecture=architect_text,
+                code_files=code_content
             )
         )
         
@@ -428,6 +416,11 @@ async def generate_stream_endpoint(request: GenerateRequest):
     if not request.prompt or not request.prompt.strip():
         raise HTTPException(status_code=400, detail="Prompt is required")
     
+    # PIN Validation
+    expected_pin = os.getenv("APP_PIN_CODE")
+    if expected_pin and request.pin_code != expected_pin:
+        raise HTTPException(status_code=401, detail="Invalid access PIN code")
+    
     # Convert attachment to dict if present
     attachment_dict = None
     if request.attachment:
@@ -449,7 +442,7 @@ async def generate_stream_endpoint(request: GenerateRequest):
     )
 
 
-def run_coder_followup(modification_request: str, current_files: dict, review_feedback: str = "", image_asset_url: Optional[str] = None) -> dict:
+async def run_coder_followup(modification_request: str, current_files: dict, review_feedback: str = "", image_asset_url: Optional[str] = None) -> dict:
     """Run the coder agent to modify existing code based on follow-up request."""
     # Build a combined representation of ALL current files for the LLM
     all_code_parts = []
@@ -464,7 +457,7 @@ def run_coder_followup(modification_request: str, current_files: dict, review_fe
     system_prompt = coder_system_prompt()
     user_prompt = coder_followup_prompt(modification_request, current_code, review_feedback, image_asset_url)
     
-    response = coder_llm.invoke([
+    response = await coder_llm.ainvoke([
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt}
     ])
@@ -511,11 +504,7 @@ async def followup_stream(modification_request: str, current_files: dict, review
     try:
         yield f"data: {json.dumps({'stage': 'modifying', 'message': 'Applying modifications....'})}\n\n"
         
-        loop = asyncio.get_event_loop()
-        result_dict = await loop.run_in_executor(
-            None,
-            lambda: run_coder_followup(modification_request, current_files, review_feedback, image_asset_url)
-        )
+        result_dict = await run_coder_followup(modification_request, current_files, review_feedback, image_asset_url)
         
         files_dict = result_dict.get("files", {})
         summary = result_dict.get("summary", "Modifications applied successfully.")
@@ -589,6 +578,11 @@ async def followup_stream_endpoint(request: FollowUpRequest):
     """
     if not request.prompt or not request.prompt.strip():
         raise HTTPException(status_code=400, detail="Modification prompt is required")
+        
+    # PIN Validation
+    expected_pin = os.getenv("APP_PIN_CODE")
+    if expected_pin and request.pin_code != expected_pin:
+        raise HTTPException(status_code=401, detail="Invalid access PIN code")
     
     if not request.current_files:
         raise HTTPException(status_code=400, detail="Current files are required")
@@ -618,6 +612,10 @@ async def generate(request: GenerateRequest):
     """Non-streaming endpoint (for backwards compatibility)."""
     if not request.prompt or not request.prompt.strip():
         raise HTTPException(status_code=400, detail="Prompt is required")
+        
+    expected_pin = os.getenv("APP_PIN_CODE")
+    if expected_pin and getattr(request, 'pin_code', None) != expected_pin:
+        raise HTTPException(status_code=401, detail="Invalid access PIN code")
     
     try:
         from agent.graph import agent

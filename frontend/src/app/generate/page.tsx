@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import ChatInterface from '@/components/ChatInterface';
 import SmartInput, { AttachmentPayload } from '@/components/SmartInput';
@@ -13,6 +13,8 @@ import { useSupabase } from '@/components/SupabaseProvider';
 import { MessageSquare, Eye, History, Github, ChevronLeft } from 'lucide-react';
 import { VersionHistorySidebar } from '@/components/VersionHistorySidebar';
 import { uploadAsset } from '@/lib/storage';
+import PinModal from '@/components/PinModal';
+
 
 type ViewMode = 'preview' | 'code';
 type GenerationStage = 'idle' | 'planning' | 'architecting' | 'coding' | 'reviewing' | 'modifying' | 'complete';
@@ -48,8 +50,21 @@ export default function Home() {
     const [isHistoryOpen, setIsHistoryOpen] = useState(false);
     const [currentVersionId, setCurrentVersionId] = useState<string | null>(null);
     const [isExporting, setIsExporting] = useState(false);
+    const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+    const [pendingAction, setPendingAction] = useState<{type: 'generate'|'followup', prompt: string, attachments: AttachmentPayload} | null>(null);
     const { user, supabase, isLoading: authLoading } = useSupabase();
     const router = useRouter();
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    const handleStop = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+        }
+        setIsLoading(false);
+        setIsFollowUpLoading(false);
+        setStage(Object.keys(files).length > 0 ? 'complete' : 'idle');
+    };
 
 
 
@@ -112,21 +127,28 @@ export default function Home() {
     };
 
     // Generate handler - uses streaming endpoint for real-time updates
-    const handleGenerate = async (prompt: string, attachments: AttachmentPayload) => {
-        setIsLoading(true);
-        setPlan('');
-        setArchitect('');
-        setDiagram('');
-        setFiles({});
-        setStage('planning');
-        setUserPrompt(prompt);
-        setFollowUpMessages([]);
+    const handleGenerate = async (prompt: string, attachments: AttachmentPayload, isRetry = false) => {
+        if (!isRetry) {
+            setIsLoading(true);
+            setPlan('');
+            setArchitect('');
+            setDiagram('');
+            setFiles({});
+            setStage('planning');
+            setUserPrompt(prompt);
+            setFollowUpMessages([]);
+        } else {
+            setIsLoading(true);
+            setStage('planning');
+        }
 
         // Log attachments for debugging
         console.log('Generating with attachments:', {
             images: attachments.images.length,
             pdf: attachments.pdf?.name
         });
+
+        abortControllerRef.current = new AbortController();
 
         try {
             // Build attachment payload for backend
@@ -145,6 +167,7 @@ export default function Home() {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/generate-stream`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: abortControllerRef.current.signal,
                 body: JSON.stringify({
                     prompt,
                     attachment: attachment ? {
@@ -163,8 +186,17 @@ export default function Home() {
                     user_id: user?.id || null,
                     project_id: projectId,
                     image_asset_url: imageAssetUrl, // Pass persistent URL
+                    pin_code: localStorage.getItem('devopus_pin') || '',
                 }),
             });
+
+            if (response.status === 401) {
+                setPendingAction({ type: 'generate', prompt, attachments });
+                setIsPinModalOpen(true);
+                setIsLoading(false);
+                setStage('idle');
+                return;
+            }
 
             if (!response.ok) {
                 throw new Error('Failed to generate code');
@@ -180,6 +212,7 @@ export default function Home() {
 
             let buffer = '';
             let latestFiles: Record<string, any> = {}; // Local var to track files across SSE events (avoids React stale closure)
+            let latestPlanName = ''; // Track generated name across SSE events
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -216,6 +249,14 @@ export default function Home() {
                             case 'plan_complete':
                                 if (data.plan) {
                                     setPlan(data.plan);
+                                    try {
+                                        const parsedPlan = typeof data.plan === 'string' ? JSON.parse(data.plan) : data.plan;
+                                        if (parsedPlan && parsedPlan.name) {
+                                            latestPlanName = parsedPlan.name;
+                                        }
+                                    } catch (e) {
+                                        // Ignore parse errors
+                                    }
                                 }
                                 break;
 
@@ -289,7 +330,7 @@ export default function Home() {
                                                 headers: { 'Content-Type': 'application/json' },
                                                 body: JSON.stringify({
                                                     user_id: user.id,
-                                                    name: prompt.slice(0, 50),
+                                                    name: latestPlanName || prompt.slice(0, 50),
                                                     description: prompt,
                                                     code_snapshot: codeSnapshot,
                                                     project_id: data.project_id
@@ -308,9 +349,13 @@ export default function Home() {
                 }
             } // end while(true)
         } catch (error) {
-            console.error('Error:', error);
-            setPlan('Error: Failed to generate code. Check the backend console.');
-            setStage('idle');
+            if (error instanceof Error && error.name === 'AbortError') {
+                console.log('Generation aborted');
+            } else {
+                console.error('Error:', error);
+                setPlan('Error: Failed to generate code. Check the backend console.');
+                setStage('idle');
+            }
         } finally {
             setIsLoading(false);
         }
@@ -392,14 +437,18 @@ export default function Home() {
     };
 
     // Follow-up handler - sends modification request directly to coder agent
-    const handleFollowUp = async (prompt: string, attachments: AttachmentPayload) => {
+    const handleFollowUp = async (prompt: string, attachments: AttachmentPayload, isRetry = false) => {
         const hasContent = prompt.trim() || attachments.images.length > 0 || attachments.pdf;
         if (!hasContent || Object.keys(files).length === 0) return;
 
-        // Add user's message to the chat immediately
-        setFollowUpMessages(prev => [...prev, { prompt: prompt.trim(), response: '' }]);
+        if (!isRetry) {
+            // Add user's message to the chat immediately
+            setFollowUpMessages(prev => [...prev, { prompt: prompt.trim(), response: '' }]);
+        }
         setIsFollowUpLoading(true);
         setStage('modifying');
+
+        abortControllerRef.current = new AbortController();
 
         try {
             // Build attachment for follow-up (use first image or PDF)
@@ -409,6 +458,7 @@ export default function Home() {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/followup-stream`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: abortControllerRef.current.signal,
                 body: JSON.stringify({
                     prompt,
                     current_files: files,
@@ -421,8 +471,17 @@ export default function Home() {
                     } : null,
                     user_id: user?.id || null,
                     project_id: projectId,
+                    pin_code: localStorage.getItem('devopus_pin') || '',
                 }),
             });
+
+            if (response.status === 401) {
+                setPendingAction({ type: 'followup', prompt, attachments });
+                setIsPinModalOpen(true);
+                setIsFollowUpLoading(false);
+                setStage('complete');
+                return;
+            }
 
             if (!response.ok) {
                 throw new Error('Failed to apply modifications');
@@ -494,8 +553,12 @@ export default function Home() {
             }
 
         } catch (error) {
-            console.error('Follow-up Error:', error);
-            setStage('complete');
+            if (error instanceof Error && error.name === 'AbortError') {
+                console.log('Follow-up aborted');
+            } else {
+                console.error('Follow-up Error:', error);
+                setStage('complete');
+            }
         } finally {
             setIsFollowUpLoading(false);
         }
@@ -606,6 +669,7 @@ export default function Home() {
                         stage={stage}
                         userPrompt={userPrompt}
                         followUpMessages={followUpMessages}
+                        onStop={handleStop}
                     />
                 </div>
             </div>
@@ -634,6 +698,7 @@ export default function Home() {
                         stage={stage}
                         userPrompt={userPrompt}
                         followUpMessages={followUpMessages}
+                        onStop={handleStop}
                     />
                 </div>
 
@@ -765,6 +830,26 @@ export default function Home() {
                     onRevert={handleRevert}
                 />
             </div>
+
+            <PinModal 
+                isOpen={isPinModalOpen} 
+                onClose={() => {
+                    setIsPinModalOpen(false);
+                    setPendingAction(null);
+                }} 
+                onSubmit={(pin) => {
+                    localStorage.setItem('devopus_pin', pin);
+                    setIsPinModalOpen(false);
+                    if (pendingAction) {
+                        if (pendingAction.type === 'generate') {
+                            handleGenerate(pendingAction.prompt, pendingAction.attachments, true);
+                        } else {
+                            handleFollowUp(pendingAction.prompt, pendingAction.attachments, true);
+                        }
+                        setPendingAction(null);
+                    }
+                }} 
+            />
         </div>
     );
 }

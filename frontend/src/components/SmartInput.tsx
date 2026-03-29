@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, ChangeEvent, KeyboardEvent } from 'react';
-import { Plus, X, FileText, CornerRightUp, Paperclip } from 'lucide-react';
+import { Plus, X, FileText, CornerRightUp, Paperclip, Square } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface Attachment {
@@ -24,6 +24,7 @@ interface SmartInputProps {
     disabled?: boolean;
     showHint?: boolean;
     className?: string;
+    onStop?: () => void;
 }
 
 export default function SmartInput({
@@ -32,7 +33,8 @@ export default function SmartInput({
     placeholder = "Describe your project...",
     disabled = false,
     showHint = true,
-    className
+    className,
+    onStop
 }: SmartInputProps) {
     const [input, setInput] = useState('');
     const [images, setImages] = useState<Attachment[]>([]);
@@ -253,16 +255,20 @@ export default function SmartInput({
                     rows={1}
                 />
 
-                {/* Submit button - fixed at top */}
+                {/* Submit / Stop button - fixed at top */}
                 <button
-                    onClick={handleSend}
-                    disabled={isLoading || disabled || !hasContent}
+                    onClick={isLoading && onStop ? onStop : handleSend}
+                    disabled={(isLoading && !onStop) || (!isLoading && (disabled || !hasContent))}
                     className={cn(
                         "flex-shrink-0 w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-200 mt-0.5",
-                        isLoading ? "bg-transparent" : hasContent ? "bg-[var(--lucid-green)] hover:bg-[var(--lucid-green-dim)]" : "bg-[var(--lucid-border)]"
+                        isLoading && onStop ? "bg-[var(--lucid-red)]/10 hover:bg-[var(--lucid-red)]/20" : 
+                        isLoading ? "bg-transparent" : 
+                        hasContent ? "bg-[var(--lucid-green)] hover:bg-[var(--lucid-green-dim)]" : "bg-[var(--lucid-border)]"
                     )}
                 >
-                    {isLoading ? (
+                    {isLoading && onStop ? (
+                        <Square fill="currentColor" size={14} className="text-[#e11d48]" />
+                    ) : isLoading ? (
                         <div
                             className="w-4 h-4 bg-[var(--lucid-green)] rounded-sm animate-spin"
                             style={{ animationDuration: "3s" }}

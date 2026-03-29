@@ -22,11 +22,11 @@ export default function LoginPage() {
     }, [user, isLoading, router]);
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4" style={{ background: '#050505' }}>
+        <div className="min-h-screen flex items-center justify-center px-4" style={{ background: 'var(--lucid-bg)' }}>
             {/* Back to home */}
             <Link
                 href="/"
-                className="absolute top-6 left-6 flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
+                className="absolute top-6 left-6 flex items-center gap-2 text-sm text-[var(--lucid-text-secondary)] hover:text-[var(--lucid-text-primary)] transition-colors"
             >
                 <ArrowLeft size={16} />
                 Back to Home
@@ -48,8 +48,8 @@ export default function LoginPage() {
                             <polyline points="22 8.5 12 15.5 2 8.5" />
                         </svg>
                     </div>
-                    <h1 className="text-2xl font-bold text-white mb-1">Welcome to DevOpus</h1>
-                    <p className="text-gray-500 text-sm">Sign in to save and manage your projects</p>
+                    <h1 className="text-2xl font-bold text-[var(--lucid-text-primary)] mb-1">Welcome to DevOpus</h1>
+                    <p className="text-[var(--lucid-text-muted)] text-sm">Sign in to save and manage your projects</p>
                 </div>
 
                 {/* Google Login Button */}
@@ -93,10 +93,10 @@ export default function LoginPage() {
 
                     <div className="relative my-4">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-gray-800"></div>
+                            <div className="w-full border-t border-[var(--lucid-border)]"></div>
                         </div>
                         <div className="relative flex justify-center text-sm">
-                            <span className="px-2 bg-[#0a0a0a] text-gray-500">Or continue with</span>
+                            <span className="px-2 bg-[var(--lucid-bg-secondary)] text-[var(--lucid-text-muted)]">Or continue with</span>
                         </div>
                     </div>
                 </div>
@@ -104,8 +104,8 @@ export default function LoginPage() {
                 <div
                     className="rounded-2xl p-6"
                     style={{
-                        background: '#0a0a0a',
-                        border: '1px solid #1a1a1a',
+                        background: 'var(--lucid-bg-secondary)',
+                        border: '1px solid var(--lucid-border)',
                     }}
                 >
                     <Auth

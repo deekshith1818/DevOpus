@@ -130,7 +130,7 @@ export default function DashboardPage() {
                         <div className="absolute inset-0 rounded-full bg-emerald-500/20 blur-xl animate-pulse" />
                         <Loader2 size={32} className="animate-spin text-emerald-400 relative z-10" />
                     </div>
-                    <p className="text-zinc-500 text-sm animate-pulse">Loading your workspace...</p>
+                    <p className="text-[var(--lucid-text-muted)] text-sm animate-pulse">Loading your workspace...</p>
                 </div>
             </div>
         );
@@ -146,7 +146,7 @@ export default function DashboardPage() {
             <header className="relative z-10 border-b border-[var(--lucid-border)] bg-[var(--lucid-bg)]/80 backdrop-blur-xl sticky top-0 transition-colors duration-300">
                 <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <Link href="/" className="text-zinc-500 hover:text-white transition-colors">
+                        <Link href="/" className="text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] transition-colors">
                             <ArrowLeft size={18} />
                         </Link>
                         <div className="flex items-center gap-2.5">
@@ -160,18 +160,18 @@ export default function DashboardPage() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <span className="text-zinc-500 text-sm hidden sm:inline text-[var(--lucid-text-secondary)]">{user?.email}</span>
+                        <span className="text-sm hidden sm:inline text-[var(--lucid-text-secondary)]">{user?.email}</span>
                         <div className="h-4 w-px bg-[var(--lucid-border)] hidden sm:block" />
                         <button
                             onClick={toggleTheme}
-                            className="p-1.5 rounded-lg text-zinc-500 hover:text-[var(--lucid-text-primary)] hover:bg-[var(--lucid-border)] transition-all"
+                            className="p-1.5 rounded-lg text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] hover:bg-[var(--lucid-border)] transition-all"
                             title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
                         >
                             {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
                         </button>
                         <button
                             onClick={handleSignOut}
-                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-zinc-500 hover:text-[var(--lucid-text-primary)] hover:bg-red-500/10 hover:text-red-500 transition-all text-sm"
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[var(--lucid-text-muted)] hover:text-red-500 hover:bg-red-500/10 transition-all text-sm"
                         >
                             <LogOut size={14} />
                             Sign Out
@@ -194,7 +194,7 @@ export default function DashboardPage() {
                             <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-3 text-[var(--lucid-text-primary)]">
                                 Welcome back, {getUserName()}.
                             </h1>
-                            <p className="text-zinc-500 text-lg font-light">
+                            <p className="text-[var(--lucid-text-muted)] text-lg font-light">
                                 {projects.length > 0
                                     ? `You have ${projects.length} project${projects.length > 1 ? 's' : ''} in your workspace.`
                                     : 'Ready to build something extraordinary?'}
@@ -256,7 +256,7 @@ export default function DashboardPage() {
                         >
                             <div
                                 onClick={() => router.push('/generate')}
-                                className="relative flex flex-col items-center justify-center p-6 rounded-2xl cursor-pointer bg-white/[0.02] border border-dashed border-zinc-800 hover:border-emerald-500/30 hover:bg-white/[0.04] transition-all duration-500 group"
+                                className="relative flex flex-col items-center justify-center p-6 rounded-2xl cursor-pointer bg-[var(--lucid-bg-secondary)]/50 border border-dashed border-[var(--lucid-border)] hover:border-emerald-500/30 hover:bg-[var(--lucid-bg-secondary)] transition-all duration-500 group"
                                 style={{ minHeight: "280px" }}
                             >
                                 <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
@@ -291,7 +291,7 @@ export default function DashboardPage() {
                                 {/* Delete button — sits on top of the folder */}
                                 <button
                                     onClick={(e) => handleDeleteClick(e, project)}
-                                    className="absolute top-3 right-3 z-40 p-2 rounded-xl opacity-0 group-hover/folder:opacity-100 text-zinc-600 hover:text-red-400 hover:bg-red-400/10 transition-all duration-200 backdrop-blur-sm"
+                                    className="absolute top-3 right-3 z-40 p-2 rounded-xl opacity-0 group-hover/folder:opacity-100 text-[var(--lucid-text-muted)] hover:text-red-400 hover:bg-red-400/10 transition-all duration-200 backdrop-blur-sm"
                                     disabled={deletingId === project.id}
                                 >
                                     {deletingId === project.id ? (

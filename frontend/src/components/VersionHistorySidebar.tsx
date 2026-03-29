@@ -67,11 +67,11 @@ export function VersionHistorySidebar({
             <div className="flex items-center justify-between p-4 border-b" style={{ borderColor: 'var(--lucid-border)' }}>
                 <div className="flex items-center gap-2">
                     <History size={18} className="text-[var(--lucid-green)]" />
-                    <h2 className="font-semibold text-white">Version History</h2>
+                    <h2 className="font-semibold text-[var(--lucid-text-primary)]">Version History</h2>
                 </div>
                 <button
                     onClick={onClose}
-                    className="p-1 rounded hover:bg-white/10 transition-colors text-[var(--lucid-text-secondary)]"
+                    className="p-1 rounded hover:bg-[var(--lucid-bg-tertiary)] transition-colors text-[var(--lucid-text-secondary)]"
                 >
                     <X size={18} />
                 </button>
@@ -107,7 +107,7 @@ export function VersionHistorySidebar({
                                 </span>
                             </div>
 
-                            <p className="text-sm text-white line-clamp-2 mb-3 font-light">
+                            <p className="text-sm text-[var(--lucid-text-primary)] line-clamp-2 mb-3 font-light">
                                 {version.prompt}
                             </p>
 

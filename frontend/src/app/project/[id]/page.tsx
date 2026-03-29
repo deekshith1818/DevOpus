@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect, use, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import ChatInterface from '@/components/ChatInterface';
 import { AttachmentPayload } from '@/components/SmartInput';
@@ -13,6 +13,7 @@ import { useSupabase } from '@/components/SupabaseProvider';
 import { Loader2, History, Github, ChevronLeft } from 'lucide-react';
 import { VersionHistorySidebar } from '@/components/VersionHistorySidebar';
 import { uploadAsset } from '@/lib/storage';
+import PinModal from '@/components/PinModal';
 
 type ViewMode = 'preview' | 'code';
 type GenerationStage = 'idle' | 'planning' | 'architecting' | 'coding' | 'reviewing' | 'modifying' | 'complete';
@@ -56,8 +57,21 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
         return null;
     });
     const [isExporting, setIsExporting] = useState(false);
+    const [isPinModalOpen, setIsPinModalOpen] = useState(false);
+    const [pendingAction, setPendingAction] = useState<{type: 'followup', prompt: string, attachments: AttachmentPayload} | null>(null);
     const { user, supabase, isLoading: isAuthLoading } = useSupabase();
     const router = useRouter();
+
+    const abortControllerRef = useRef<AbortController | null>(null);
+
+    const handleStop = () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+        }
+        setIsFollowUpLoading(false);
+        setStage(Object.keys(files).length > 0 ? 'complete' : 'idle');
+    };
 
     // Load project from backend API on mount
     useEffect(() => {
@@ -262,14 +276,18 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
     }, [stage, files]);
 
     // Follow-up handler
-    const handleFollowUp = async (prompt: string, attachments: AttachmentPayload) => {
+    const handleFollowUp = async (prompt: string, attachments: AttachmentPayload, isRetry = false) => {
         const hasContent = prompt.trim() || attachments.images.length > 0 || attachments.pdf;
         if (!hasContent || Object.keys(files).length === 0) return;
 
-        // Add user's message to the chat immediately
-        setFollowUpMessages(prev => [...prev, { prompt: prompt.trim(), response: '' }]);
+        if (!isRetry) {
+            // Add user's message to the chat immediately
+            setFollowUpMessages(prev => [...prev, { prompt: prompt.trim(), response: '' }]);
+        }
         setIsFollowUpLoading(true);
         setStage('modifying');
+
+        abortControllerRef.current = new AbortController();
 
         try {
             const primaryImage = attachments.images[0] || null;
@@ -292,6 +310,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/followup-stream`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                signal: abortControllerRef.current.signal,
                 body: JSON.stringify({
                     prompt,
                     current_files: normalizedFiles,
@@ -305,8 +324,17 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                     user_id: user?.id || null,
                     project_id: projectId,
                     image_asset_url: imageAssetUrl,
+                    pin_code: localStorage.getItem('devopus_pin') || '',
                 }),
             });
+
+            if (response.status === 401) {
+                setPendingAction({ type: 'followup', prompt, attachments });
+                setIsPinModalOpen(true);
+                setIsFollowUpLoading(false);
+                setStage(Object.keys(files).length > 0 ? 'complete' : 'idle');
+                return;
+            }
 
             if (!response.ok) throw new Error('Failed to apply modifications');
 
@@ -367,8 +395,12 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 }
             }
         } catch (error) {
-            console.error('Follow-up Error:', error);
-            setStage('complete');
+            if (error instanceof Error && error.name === 'AbortError') {
+                console.log('Follow-up aborted');
+            } else {
+                console.error('Follow-up Error:', error);
+                setStage('complete');
+            }
         } finally {
             setIsFollowUpLoading(false);
         }
@@ -518,6 +550,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                         stage={stage}
                         userPrompt={initialPrompt}
                         followUpMessages={followUpMessages}
+                        onStop={handleStop}
                     />
                 </div>
             </div>
@@ -546,6 +579,7 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                         stage={stage}
                         userPrompt={initialPrompt}
                         followUpMessages={followUpMessages}
+                        onStop={handleStop}
                     />
                 </div>
 
@@ -643,6 +677,22 @@ export default function ProjectPage({ params }: { params: Promise<{ id: string }
                 projectId={projectId}
                 currentVersionId={currentVersionId}
                 onRevert={handleRevert}
+            />
+
+            <PinModal 
+                isOpen={isPinModalOpen} 
+                onClose={() => {
+                    setIsPinModalOpen(false);
+                    setPendingAction(null);
+                }} 
+                onSubmit={(pin) => {
+                    localStorage.setItem('devopus_pin', pin);
+                    setIsPinModalOpen(false);
+                    if (pendingAction) {
+                        handleFollowUp(pendingAction.prompt, pendingAction.attachments, true);
+                        setPendingAction(null);
+                    }
+                }} 
             />
         </div>
     );

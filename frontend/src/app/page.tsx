@@ -410,24 +410,24 @@ export default function HomePage() {
 
                 <div className="relative z-10 max-w-4xl">
                     <FadeUp>
-                        <div className="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/50 backdrop-blur-sm mb-6">
+                        <div className="inline-flex items-center gap-2 pl-2.5 pr-3 py-1 rounded-full border border-[var(--lucid-border)] bg-[var(--lucid-bg-secondary)]/80 backdrop-blur-sm mb-6">
                             <div className="relative flex h-2 w-2">
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                             </div>
-                            <span className="text-xs font-medium text-zinc-300 tracking-wide uppercase">Introducing DevOpus 1.0</span>
+                            <span className="text-xs font-medium text-[var(--lucid-text-secondary)] tracking-wide uppercase">Introducing DevOpus 1.0</span>
                         </div>
                     </FadeUp>
 
                     <FadeUp delay={0.1}>
-                        <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[100px] font-bold tracking-tighter leading-[0.95] text-transparent bg-clip-text bg-gradient-to-br from-white via-zinc-200 to-zinc-600 mb-8">
+                        <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-[100px] font-bold tracking-tighter leading-[0.95] text-transparent bg-clip-text bg-gradient-to-br from-[var(--lucid-text-primary)] via-[var(--lucid-text-secondary)] to-[var(--lucid-text-muted)] mb-8">
                             Build Beautiful Software. <br />
-                            <span className="italic font-light text-zinc-400">the clarity.</span>
+                            <span className="italic font-light text-[var(--lucid-text-muted)]">the clarity.</span>
                         </h1>
                     </FadeUp>
 
                     <FadeUp delay={0.2}>
-                        <p className="text-xl sm:text-2xl text-zinc-400 max-w-2xl leading-relaxed font-light mb-10">
+                        <p className="text-xl sm:text-2xl text-[var(--lucid-text-secondary)] max-w-2xl leading-relaxed font-light mb-10">
                             We don't just write code; we build systems. Your personal AI engineering team, executing with perfect context!
                         </p>
                     </FadeUp>
@@ -435,14 +435,14 @@ export default function HomePage() {
                     <FadeUp delay={0.3} className="flex flex-wrap items-center gap-4">
                         <Link
                             href={user ? "/dashboard" : "/login"}
-                            className="group flex items-center gap-2 px-8 py-4 rounded-full bg-white text-black text-lg font-medium hover:bg-zinc-200 transition-all"
+                            className="group flex items-center gap-2 px-8 py-4 rounded-full bg-emerald-500 text-black text-lg font-medium hover:bg-emerald-400 transition-all shadow-[0_0_20px_rgba(16,185,129,0.3)]"
                         >
                             Start Building
                             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                         <a
                             href="#how-it-works"
-                            className="flex items-center gap-2 px-8 py-4 rounded-full border border-zinc-800 bg-zinc-900/30 text-zinc-300 text-lg font-medium hover:bg-zinc-800 transition-all backdrop-blur-sm"
+                            className="flex items-center gap-2 px-8 py-4 rounded-full border border-[var(--lucid-border)] bg-[var(--lucid-bg-secondary)]/50 text-[var(--lucid-text-secondary)] text-lg font-medium hover:bg-[var(--lucid-bg-tertiary)] transition-all backdrop-blur-sm"
                         >
                             See How It Works
                         </a>
@@ -457,10 +457,10 @@ export default function HomePage() {
                             scale: heroScale,
                             opacity: heroOpacity,
                         }}
-                        className="relative w-full h-[400px] sm:h-[600px] rounded-2xl sm:rounded-[2.5rem] overflow-hidden border border-zinc-800/50 bg-[#0a0a0a] shadow-2xl origin-bottom"
+                        className="relative w-full h-[400px] sm:h-[600px] rounded-2xl sm:rounded-[2.5rem] overflow-hidden border border-[var(--lucid-border)] bg-[var(--lucid-bg-secondary)] shadow-2xl origin-bottom"
                     >
                         {/* Mock Browser/Editor Headers */}
-                        <div className="absolute top-0 left-0 right-0 h-12 border-b border-zinc-800 bg-zinc-900 flex items-center px-5 gap-2 z-20">
+                        <div className="absolute top-0 left-0 right-0 h-12 border-b border-[var(--lucid-border)] bg-[var(--lucid-bg-tertiary)] flex items-center px-5 gap-2 z-20">
                             <div className="flex gap-2">
                                 <div className="w-3.5 h-3.5 rounded-full bg-[#FF5F57]" />
                                 <div className="w-3.5 h-3.5 rounded-full bg-[#FEBC2E]" />
@@ -477,7 +477,7 @@ export default function HomePage() {
             <section id="how-it-works" className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-[var(--lucid-border)]">
                 <FadeUp>
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">The Engine.</h2>
-                    <p className="text-xl text-zinc-500 font-light max-w-2xl mb-20">A sophisticated 4-agent architecture working in perfect harmony.</p>
+                    <p className="text-xl text-[var(--lucid-text-muted)] font-light max-w-2xl mb-20">A sophisticated 4-agent architecture working in perfect harmony.</p>
                 </FadeUp>
 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 relative">
@@ -524,15 +524,15 @@ export default function HomePage() {
                         { icon: Eye, title: "4. Reviewer", desc: "Validates code quality, structure, and aesthetics before delivering the final app." }
                     ].map((step, i) => (
                         <FadeUp key={i} delay={0.1 * i} className="relative z-10 flex flex-row md:flex-col items-center md:items-center text-left md:text-center gap-6 md:gap-0 pl-4 md:pl-0">
-                            <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 shrink-0 rounded-2xl md:rounded-3xl bg-[#0a0a0a] border border-zinc-800 flex items-center justify-center md:mb-6 shadow-xl relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-500 z-20">
+                            <div className="w-24 h-24 sm:w-28 sm:h-28 md:w-32 md:h-32 shrink-0 rounded-2xl md:rounded-3xl bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)] flex items-center justify-center md:mb-6 shadow-xl relative overflow-hidden group hover:border-emerald-500/30 transition-all duration-500 z-20">
                                 <div className="absolute inset-0 bg-emerald-500/0 md:group-hover:bg-emerald-500/5 transition-colors duration-500" />
                                 {/* Subtle inner glow on hover */}
                                 <div className="absolute inset-0 opacity-0 md:group-hover:opacity-100 transition-opacity duration-500" style={{ boxShadow: 'inset 0 0 30px rgba(16,185,129,0.1)' }} />
-                                <step.icon className="w-8 h-8 md:w-8 md:h-8 text-zinc-300 md:group-hover:text-emerald-400 transition-colors duration-500 relative z-10" strokeWidth={1.5} />
+                                <step.icon className="w-8 h-8 md:w-8 md:h-8 text-[var(--lucid-text-secondary)] md:group-hover:text-emerald-400 transition-colors duration-500 relative z-10" strokeWidth={1.5} />
                             </div>
                             <div className="flex-1 md:flex-none">
-                                <h3 className="text-xl md:text-xl font-bold text-white mb-2 md:mb-2">{step.title}</h3>
-                                <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">{step.desc}</p>
+                                <h3 className="text-xl md:text-xl font-bold text-[var(--lucid-text-primary)] mb-2 md:mb-2">{step.title}</h3>
+                                <p className="text-[var(--lucid-text-secondary)] text-sm sm:text-base leading-relaxed">{step.desc}</p>
                             </div>
                         </FadeUp>
                     ))}
@@ -540,7 +540,7 @@ export default function HomePage() {
             </section>
 
             {/* --- Showcase Parallax --- */}
-            <section className="border-t border-zinc-900">
+            <section className="border-t border-[var(--lucid-border)]">
                 <HeroParallax products={[
                     { title: "Fullstack Portfolio", link: "https://deekshithnanaveni.vercel.app/", thumbnail: "https://niisanszcyfjivrvfayx.supabase.co/storage/v1/object/public/show-case/Screenshot%202026-02-26%20213957.png" },
                     { title: "Connectify", link: "https://connectify2-web.vercel.app/", thumbnail: "https://niisanszcyfjivrvfayx.supabase.co/storage/v1/object/public/show-case/Screenshot%202026-02-26%20214037.png" },
@@ -563,24 +563,24 @@ export default function HomePage() {
             <section id="features" className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-[var(--lucid-border)]">
                 <FadeUp>
                     <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-4">Unfair Advantages.</h2>
-                    <p className="text-xl text-zinc-500 font-light max-w-2xl mb-20">Everything you need to go from idea to deployment in seconds.</p>
+                    <p className="text-xl text-[var(--lucid-text-muted)] font-light max-w-2xl mb-20">Everything you need to go from idea to deployment in seconds.</p>
                 </FadeUp>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:grid-rows-2 md:h-[600px]">
                     {/* Bento Box 1 */}
                     <FadeUp className="md:col-span-2 md:row-span-1">
-                        <SpotlightCard className="rounded-3xl bg-zinc-900/40 border border-zinc-800/50 p-8 flex flex-col justify-between overflow-hidden h-full">
+                        <SpotlightCard className="rounded-3xl bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)] p-8 flex flex-col justify-between overflow-hidden h-full">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-[80px]" />
                             <div className="relative z-20 mb-8 md:mb-0">
                                 <Zap size={24} className="text-emerald-400 mb-4" />
                                 <h3 className="text-2xl font-semibold mb-2">Instant Live Preview</h3>
-                                <p className="text-zinc-400 max-w-sm">Powered by Sandpack, watch your application render beautifully in real-time as the AI writes the code.</p>
+                                <p className="text-[var(--lucid-text-secondary)] max-w-sm">Powered by Sandpack, watch your application render beautifully in real-time as the AI writes the code.</p>
                             </div>
                             {/* Abstract visual */}
-                            <div className="relative z-20 self-end w-full max-w-xs h-32 rounded-xl bg-[#0a0a0a] border border-zinc-800 shadow-2xl skew-x-[-10deg] translate-x-4 flex items-center px-4">
+                            <div className="relative z-20 self-end w-full max-w-xs h-32 rounded-xl bg-[var(--lucid-bg-tertiary)] border border-[var(--lucid-border)] shadow-2xl skew-x-[-10deg] translate-x-4 flex items-center px-4">
                                 <div className="flex gap-2">
-                                    <div className="w-12 h-3 rounded bg-zinc-800" />
-                                    <div className="w-8 h-3 rounded bg-zinc-700" />
+                                    <div className="w-12 h-3 rounded bg-[var(--lucid-border-highlight)]" />
+                                    <div className="w-8 h-3 rounded bg-[var(--lucid-border)]" />
                                 </div>
                             </div>
                         </SpotlightCard>
@@ -588,17 +588,17 @@ export default function HomePage() {
 
                     {/* Bento Box 2 */}
                     <FadeUp delay={0.1} className="md:col-span-1 md:row-span-2">
-                        <SpotlightCard className="rounded-3xl bg-zinc-900/40 border border-zinc-800/50 p-8 flex flex-col overflow-hidden h-full">
+                        <SpotlightCard className="rounded-3xl bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)] p-8 flex flex-col overflow-hidden h-full">
                             <div className="relative z-20 mb-8">
                                 <Sparkles size={24} className="text-amber-400 mb-4" />
                                 <h3 className="text-2xl font-semibold mb-2">Multi-Model Brain</h3>
-                                <p className="text-zinc-400">Leveraging the raw power of latest models for intricate reasoning, architecture, and UI generation.</p>
+                                <p className="text-[var(--lucid-text-secondary)]">Leveraging the raw power of latest models for intricate reasoning, architecture, and UI generation.</p>
                             </div>
                             <div className="relative z-20 flex-1 flex flex-col gap-3 justify-end mt-8">
                                 {['Reasoning', 'Architecting', 'Programming', 'Refining'].map((tag, i) => (
-                                    <div key={i} className="px-4 py-3 rounded-xl bg-black/40 border border-zinc-800/50 text-sm font-medium flex items-center justify-between">
-                                        <span className="text-zinc-300">{tag}</span>
-                                        <CheckCircle2 size={16} className="text-zinc-600" />
+                                    <div key={i} className="px-4 py-3 rounded-xl bg-[var(--lucid-bg)]/60 border border-[var(--lucid-border)] text-sm font-medium flex items-center justify-between">
+                                        <span className="text-[var(--lucid-text-primary)]">{tag}</span>
+                                        <CheckCircle2 size={16} className="text-[var(--lucid-text-muted)]" />
                                     </div>
                                 ))}
                             </div>
@@ -607,22 +607,22 @@ export default function HomePage() {
 
                     {/* Bento Box 3 */}
                     <FadeUp delay={0.2} className="md:col-span-1 md:row-span-1">
-                        <SpotlightCard className="rounded-3xl bg-zinc-900/40 border border-zinc-800/50 p-8 overflow-hidden h-full">
+                        <SpotlightCard className="rounded-3xl bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)] p-8 overflow-hidden h-full">
                             <div className="relative z-20">
                                 <Eye size={24} className="text-blue-400 mb-4" />
                                 <h3 className="text-2xl font-semibold mb-2">Image to UI</h3>
-                                <p className="text-zinc-400 text-sm">Upload wireframes or mockups. Our vision-enabled planner understands structure and replicates it flawlessly in code.</p>
+                                <p className="text-[var(--lucid-text-secondary)] text-sm">Upload wireframes or mockups. Our vision-enabled planner understands structure and replicates it flawlessly in code.</p>
                             </div>
                         </SpotlightCard>
                     </FadeUp>
 
                     {/* Bento Box 4 */}
                     <FadeUp delay={0.3} className="md:col-span-1 md:row-span-1">
-                        <SpotlightCard className="rounded-3xl bg-zinc-900/40 border border-zinc-800/50 p-8 overflow-hidden h-full">
+                        <SpotlightCard className="rounded-3xl bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)] p-8 overflow-hidden h-full">
                             <div className="relative z-20">
-                                <Github size={24} className="text-white mb-4" />
+                                <Github size={24} className="text-[var(--lucid-text-primary)] mb-4" />
                                 <h3 className="text-2xl font-semibold mb-2">Ship to Production</h3>
-                                <p className="text-zinc-400 text-sm">One-click export directly to your GitHub repository. Fully typed, logically structured, ready to deploy.</p>
+                                <p className="text-[var(--lucid-text-secondary)] text-sm">One-click export directly to your GitHub repository. Fully typed, logically structured, ready to deploy.</p>
                             </div>
                         </SpotlightCard>
                     </FadeUp>
@@ -632,7 +632,7 @@ export default function HomePage() {
             {/* --- Testimonials --- */}
             <section className="py-32 px-6 sm:px-12 max-w-7xl mx-auto border-t border-[var(--lucid-border)]">
                 <FadeUp>
-                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-center mb-20 text-transparent bg-clip-text bg-gradient-to-b from-white to-zinc-500">Beloved by Builders.</h2>
+                    <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-center mb-20 text-transparent bg-clip-text bg-gradient-to-b from-[var(--lucid-text-primary)] to-[var(--lucid-text-muted)]">Beloved by Builders.</h2>
                 </FadeUp>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {[
@@ -641,16 +641,16 @@ export default function HomePage() {
                         { name: "Marcus T.", role: "Startup Founder", text: "It's replaced our entire MVP prototyping phase. The Sandpack live preview lets me iterate on ideas instantaneously." }
                     ].map((testimonial, i) => (
                         <FadeUp key={i} delay={0.1 * i}>
-                            <SpotlightCard className="p-8 rounded-3xl bg-[#0a0a0a] border border-zinc-800 h-full">
+                            <SpotlightCard className="p-8 rounded-3xl bg-[var(--lucid-bg-secondary)] border border-[var(--lucid-border)] h-full">
                                 <div className="relative z-20">
-                                    <p className="text-zinc-300 mb-8 italic">&ldquo;{testimonial.text}&rdquo;</p>
+                                    <p className="text-[var(--lucid-text-secondary)] mb-8 italic">&ldquo;{testimonial.text}&rdquo;</p>
                                     <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center font-semibold text-zinc-500">
+                                        <div className="w-10 h-10 rounded-full bg-[var(--lucid-bg-tertiary)] flex items-center justify-center font-semibold text-[var(--lucid-text-muted)]">
                                             {testimonial.name.charAt(0)}
                                         </div>
                                         <div>
                                             <div className="text-sm font-semibold">{testimonial.name}</div>
-                                            <div className="text-xs text-zinc-500">{testimonial.role}</div>
+                                            <div className="text-xs text-[var(--lucid-text-muted)]">{testimonial.role}</div>
                                         </div>
                                     </div>
                                 </div>
@@ -673,13 +673,13 @@ export default function HomePage() {
                         { q: "Is there a limit to how complex projects can be?", a: "DevOpus is optimized for frontend landing pages, dashboards, UI components, and single-page apps. For massive, heavily backend-dependent enterprise networks, it serves best as a rapid prototyping and UI generation tool." }
                     ].map((faq, i) => (
                         <FadeUp key={i} delay={0.05 * i}>
-                            <div className="border-b border-zinc-800">
+                            <div className="border-b border-[var(--lucid-border)]">
                                 <button
                                     onClick={() => toggleFaq(i)}
                                     className="w-full flex items-center justify-between py-6 text-left focus:outline-none"
                                 >
                                     <span className="text-lg font-medium">{faq.q}</span>
-                                    <ChevronDown size={20} className={`text-zinc-500 transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
+                                    <ChevronDown size={20} className={`text-[var(--lucid-text-muted)] transition-transform duration-300 ${openFaq === i ? 'rotate-180' : ''}`} />
                                 </button>
                                 <AnimatePresence>
                                     {openFaq === i && (
@@ -689,7 +689,7 @@ export default function HomePage() {
                                             exit={{ height: 0, opacity: 0 }}
                                             className="overflow-hidden"
                                         >
-                                            <p className="pb-6 text-zinc-400">{faq.a}</p>
+                                            <p className="pb-6 text-[var(--lucid-text-secondary)]">{faq.a}</p>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -711,26 +711,26 @@ export default function HomePage() {
                             </svg>
                             <span className="text-xl font-bold">DevOpus</span>
                         </div>
-                        <p className="text-zinc-500 text-sm">The definitive agentic coding platform for modern frontend teams.</p>
+                        <p className="text-[var(--lucid-text-muted)] text-sm">The definitive agentic coding platform for modern frontend teams.</p>
                         <div className="flex gap-4 mt-6">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" className="w-[18px] h-[18px] fill-zinc-600 hover:fill-white cursor-pointer transition-colors"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.005 4.15H5.059z"></path></svg>
-                            <Instagram size={18} className="text-zinc-600 hover:text-white cursor-pointer transition-colors" />
-                            <Linkedin size={18} className="text-zinc-600 hover:text-white cursor-pointer transition-colors" />
+                            <svg viewBox="0 0 24 24" aria-hidden="true" className="w-[18px] h-[18px] fill-[var(--lucid-text-muted)] hover:fill-[var(--lucid-text-primary)] cursor-pointer transition-colors"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.005 4.15H5.059z"></path></svg>
+                            <Instagram size={18} className="text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] cursor-pointer transition-colors" />
+                            <Linkedin size={18} className="text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] cursor-pointer transition-colors" />
                         </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-10 text-sm">
                         <div className="flex flex-col gap-3">
-                            <span className="font-semibold text-white mb-2">Product</span>
-                            <a href="#features" className="text-zinc-500 hover:text-white transition-colors">Features</a>
-                            <a href="#how-it-works" className="text-zinc-500 hover:text-white transition-colors">How it Works</a>
-                            <Link href="/pricing" className="text-zinc-500 hover:text-white transition-colors">Pricing</Link>
+                            <span className="font-semibold text-[var(--lucid-text-primary)] mb-2">Product</span>
+                            <a href="#features" className="text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] transition-colors">Features</a>
+                            <a href="#how-it-works" className="text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] transition-colors">How it Works</a>
+                            <Link href="/pricing" className="text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] transition-colors">Pricing</Link>
                         </div>
                         <div className="flex flex-col gap-3">
-                            <span className="font-semibold text-white mb-2">Resources</span>
-                            <Link href="/careers" className="text-zinc-500 hover:text-white transition-colors">Careers</Link>
-                            <a href="#" className="text-zinc-500 hover:text-white transition-colors">Blog</a>
-                            <a href="#" className="text-zinc-500 hover:text-white transition-colors">Discord Community</a>
+                            <span className="font-semibold text-[var(--lucid-text-primary)] mb-2">Resources</span>
+                            <Link href="/careers" className="text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] transition-colors">Careers</Link>
+                            <a href="#" className="text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] transition-colors">Blog</a>
+                            <a href="#" className="text-[var(--lucid-text-muted)] hover:text-[var(--lucid-text-primary)] transition-colors">Discord Community</a>
                         </div>
                     </div>
                 </div>
@@ -740,7 +740,7 @@ export default function HomePage() {
                     <FooterTextReveal />
                 </div>
 
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-zinc-600 mt-10">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center text-xs text-[var(--lucid-text-muted)] mt-10">
                     <p>© 2026 DevOpus Inc. All rights reserved.</p>
                     <p>Designed with precision.</p>
                 </div>

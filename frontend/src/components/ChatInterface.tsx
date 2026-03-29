@@ -39,6 +39,7 @@ interface ChatInterfaceProps {
     userPrompt?: string;           // The initial user prompt (shown in chat)
     followUpMessages?: FollowUpMessage[];  // Follow-up exchange history
     className?: string;            // Forwarded root container classes
+    onStop?: () => void;           // Stop response callback
 }
 
 export default function ChatInterface({
@@ -55,6 +56,7 @@ export default function ChatInterface({
     userPrompt,
     followUpMessages = [],
     className = "",
+    onStop,
 }: ChatInterfaceProps) {
     const router = useRouter();
     const { theme, toggleTheme } = useTheme();
@@ -483,6 +485,7 @@ export default function ChatInterface({
                         isLoading={isLoading || isFollowUpLoading}
                         placeholder={getPlaceholder()}
                         showHint={stage === 'idle' && !hasFiles}
+                        onStop={onStop}
                     />
                 </div>
             </div>
